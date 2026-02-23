@@ -18,12 +18,24 @@ idl-build = ["anchor-lang/idl-build"]
 anchor-debug = []
 custom-heap = []
 custom-panic = []
+cli = ["dep:anyhow", "dep:clap", "dep:serde_json"]
 
 
 [dependencies]
 anchor-lang = "0.32.1"
 anchor-spl = "0.32.1"
+anyhow = { version = "1.0.102", optional = true }
+clap = { version = "4.5.60", features = ["derive"], optional = true }
+serde_json = { version = "1.0.145", optional = true }
 
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }
+
+[target.'cfg(not(target_os = "solana"))'.dev-dependencies]
+litesvm = "0.9.1"
+
+[[bin]]
+name = "pda-scanner"
+path = "src/bin/pda-scanner.rs"
+required-features = ["cli"]
