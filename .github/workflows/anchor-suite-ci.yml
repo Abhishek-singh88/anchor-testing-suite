@@ -1,0 +1,46 @@
+name: Anchor Suite CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  test-anchor-suite:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install Solana CLI
+        run: |
+          sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> "$GITHUB_PATH"
+          solana --version
+
+      - name: Install AVM and Anchor CLI
+        run: |
+          cargo install --git https://github.com/coral-xyz/anchor avm --locked
+          avm install 0.32.1
+          avm use 0.32.1
+          anchor --version
+
+      - name: Build Program
+        run: anchor build
+
+      - name: Run Anchor Suite Test
+        run: cargo run -p anchor-testing-suite --features cli --bin pda-scanner test
+
+      - name: Upload Anchor Suite Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: anchor-suite-report
+          path: target/anchor-suite/report.json
+          if-no-files-found: ignore
