@@ -16,6 +16,7 @@ use std::process::Command;
 #[derive(Parser)]
 #[command(name = "anchor-suite")]
 #[command(about = "Anchor testing suite CLI")]
+#[command(version = env!("CARGO_PKG_VERSION"))]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
