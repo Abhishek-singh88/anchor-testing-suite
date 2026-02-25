@@ -1,5 +1,3 @@
-use anchor_lang::{prelude::Pubkey, InstructionData};
-use anchor_testing_suite::{instruction as vault_ix, ID as PROGRAM_ID};
 use anyhow::{bail, Context, Result};
 use clap::{Parser, Subcommand};
 use litesvm::LiteSVM;
@@ -10,7 +8,7 @@ use solana_keypair::Keypair;
 use solana_message::Message;
 use solana_signer::Signer;
 use solana_transaction::Transaction;
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashMap};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -25,15 +23,11 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Scan Anchor IDLs for PDA accounts
     Scan {
-        /// Anchor project root (defaults to current directory)
         #[arg(short, long)]
         project_dir: Option<String>,
     },
-    /// Run generated edge-case tests (implemented in Step 2)
     Test {
-        /// Anchor project root (defaults to current directory)
         #[arg(short, long)]
         project_dir: Option<String>,
     },
@@ -121,64 +115,137 @@ struct PdaInfo {
 
 fn run_tests(project_dir: &str) -> Result<()> {
     let project_root = Path::new(project_dir);
-    let deploy_so = project_root
-        .join("target")
-        .join("deploy")
-        .join("anchor_testing_suite.so");
-    let litesvm_test = project_root
+    let idl_dir = project_root.join("target").join("idl");
+    let deploy_dir = project_root.join("target").join("deploy");
+
+    let mut checks = Vec::new();
+    println!("Running anchor-suite test");
+    println!("{:-^60}", " Preflight ");
+
+    if idl_dir.exists() {
+        println!("PASS  idl directory found: {}", idl_dir.display());
+        checks.push(CheckResult::pass("idl_dir_exists", format!("{}", idl_dir.display())));
+    } else {
+        println!("FAIL  missing idl directory: {}", idl_dir.display());
+        checks.push(CheckResult::fail(
+            "idl_dir_exists",
+            format!("{}", idl_dir.display()),
+            "Run `anchor build` first".to_string(),
+        ));
+        write_min_report(project_root, &checks)?;
+        bail!("Test suite failed");
+    }
+
+    if deploy_dir.exists() {
+        println!("PASS  deploy directory found: {}", deploy_dir.display());
+        checks.push(CheckResult::pass(
+            "deploy_dir_exists",
+            format!("{}", deploy_dir.display()),
+        ));
+    } else {
+        println!("FAIL  missing deploy directory: {}", deploy_dir.display());
+        checks.push(CheckResult::fail(
+            "deploy_dir_exists",
+            format!("{}", deploy_dir.display()),
+            "Run `anchor build` first".to_string(),
+        ));
+        write_min_report(project_root, &checks)?;
+        bail!("Test suite failed");
+    }
+
+    let programs = load_program_specs(&idl_dir, &deploy_dir)?;
+    if programs.is_empty() {
+        checks.push(CheckResult::fail(
+            "program_specs_loaded",
+            "No testable IDL program specs found".to_string(),
+            "Ensure IDL has instructions and matching .so exists in target/deploy".to_string(),
+        ));
+        write_min_report(project_root, &checks)?;
+        bail!("No testable programs found");
+    }
+
+    checks.push(CheckResult::pass(
+        "program_specs_loaded",
+        format!("loaded {} program specs", programs.len()),
+    ));
+
+    let smoke = maybe_run_local_smoke(project_root)?;
+    if let Some(smoke_result) = &smoke {
+        if smoke_result.ok {
+            checks.push(CheckResult::pass("optional_smoke_test", smoke_result.detail.clone()));
+        } else {
+            checks.push(CheckResult::fail(
+                "optional_smoke_test",
+                smoke_result.detail.clone(),
+                "Inspect stderr/stdout in report".to_string(),
+            ));
+        }
+    }
+
+    let generated = generate_edge_cases(&programs);
+    println!("{:-^60}", " Generated Cases ");
+    println!("generated_edge_cases: {}", generated.len());
+    checks.push(CheckResult::pass(
+        "edge_case_generation",
+        format!("generated {} idl-driven cases", generated.len()),
+    ));
+
+    println!("{:-^60}", " Case Execution ");
+    let executed = execute_edge_cases(&programs, &generated)?;
+    let case_passed = executed.iter().filter(|c| c.passed).count();
+    let case_failed = executed.len().saturating_sub(case_passed);
+    println!("executed_cases: {}", executed.len());
+    println!("case_passed: {}", case_passed);
+    println!("case_failed: {}", case_failed);
+
+    if case_failed == 0 {
+        checks.push(CheckResult::pass(
+            "generated_case_execution",
+            format!("all {} generated cases matched expectations", executed.len()),
+        ));
+    } else {
+        checks.push(CheckResult::fail(
+            "generated_case_execution",
+            format!("{} of {} generated cases did not match expectations", case_failed, executed.len()),
+            "Inspect `executed_cases` in report.json".to_string(),
+        ));
+    }
+
+    let report_path = write_report(project_root, &checks, &generated, &executed, &smoke)?;
+    println!("report: {}", report_path.display());
+
+    println!("{:-^60}", " Summary ");
+    println!("checks_failed: {}", checks.iter().filter(|c| !c.ok).count());
+    println!("case_passed: {}", case_passed);
+    println!("case_failed: {}", case_failed);
+
+    if checks.iter().any(|c| !c.ok) || case_failed > 0 {
+        bail!("Test suite failed");
+    }
+
+    Ok(())
+}
+
+#[derive(Debug)]
+struct SmokeResult {
+    ok: bool,
+    detail: String,
+    stdout: String,
+    stderr: String,
+}
+
+fn maybe_run_local_smoke(project_root: &Path) -> Result<Option<SmokeResult>> {
+    let smoke_test = project_root
         .join("programs")
         .join("anchor-testing-suite")
         .join("tests")
         .join("litesvm_test.rs");
 
-    let mut passed = 0usize;
-    let mut failed = 0usize;
-    let mut checks: Vec<CheckResult> = Vec::new();
-
-    println!("Running anchor-suite test");
-    println!("{:-^60}", " Preflight ");
-
-    if deploy_so.exists() {
-        println!("PASS  program artifact found: {}", deploy_so.display());
-        passed += 1;
-        checks.push(CheckResult::pass(
-            "program_artifact_exists",
-            format!("{}", deploy_so.display()),
-        ));
-    } else {
-        println!(
-            "FAIL  missing program artifact: {} (run `anchor build`)",
-            deploy_so.display()
-        );
-        failed += 1;
-        checks.push(CheckResult::fail(
-            "program_artifact_exists",
-            format!("{}", deploy_so.display()),
-            "Run `anchor build` first".to_string(),
-        ));
+    if !smoke_test.exists() {
+        return Ok(None);
     }
 
-    if litesvm_test.exists() {
-        println!("PASS  LiteSVM test file found: {}", litesvm_test.display());
-        passed += 1;
-        checks.push(CheckResult::pass(
-            "litesvm_test_exists",
-            format!("{}", litesvm_test.display()),
-        ));
-    } else {
-        println!(
-            "FAIL  missing LiteSVM test file: {}",
-            litesvm_test.display()
-        );
-        failed += 1;
-        checks.push(CheckResult::fail(
-            "litesvm_test_exists",
-            format!("{}", litesvm_test.display()),
-            "Create programs/anchor-testing-suite/tests/litesvm_test.rs".to_string(),
-        ));
-    }
-
-    println!("{:-^60}", " Execution ");
+    println!("{:-^60}", " Optional Smoke Test ");
     let output = Command::new("cargo")
         .arg("test")
         .arg("-p")
@@ -189,92 +256,519 @@ fn run_tests(project_dir: &str) -> Result<()> {
         .arg("--nocapture")
         .current_dir(project_root)
         .output()
-        .context("Failed to execute cargo test for litesvm_test")?;
+        .context("Failed to execute optional smoke test")?;
 
-    if output.status.success() {
-        println!("PASS  cargo test -p anchor-testing-suite --test litesvm_test");
-        passed += 1;
-        checks.push(CheckResult::pass(
-            "litesvm_smoke_test",
-            "cargo test -p anchor-testing-suite --test litesvm_test -- --nocapture".to_string(),
-        ));
+    let ok = output.status.success();
+    let detail = "cargo test -p anchor-testing-suite --test litesvm_test -- --nocapture".to_string();
+    if ok {
+        println!("PASS  {}", detail);
     } else {
-        println!("FAIL  cargo test -p anchor-testing-suite --test litesvm_test");
-        failed += 1;
-        checks.push(CheckResult::fail(
-            "litesvm_smoke_test",
-            "cargo test -p anchor-testing-suite --test litesvm_test -- --nocapture".to_string(),
-            "Check stderr/stdout in report".to_string(),
-        ));
+        println!("FAIL  {}", detail);
     }
 
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    let stderr = String::from_utf8_lossy(&output.stderr);
-    if !stdout.trim().is_empty() {
-        println!("{:-^60}", " cargo test stdout ");
-        println!("{}", stdout);
+    Ok(Some(SmokeResult {
+        ok,
+        detail,
+        stdout: String::from_utf8_lossy(&output.stdout).to_string(),
+        stderr: String::from_utf8_lossy(&output.stderr).to_string(),
+    }))
+}
+
+#[derive(Debug)]
+struct ProgramSpec {
+    idl_file: String,
+    program_id: Address,
+    deploy_so: PathBuf,
+    instructions: Vec<InstructionSpec>,
+}
+
+#[derive(Debug, Clone)]
+struct InstructionSpec {
+    name: String,
+    discriminator: Vec<u8>,
+    accounts: Vec<AccountSpec>,
+    args: Vec<ArgSpec>,
+}
+
+#[derive(Debug, Clone)]
+struct AccountSpec {
+    name: String,
+    signer: bool,
+    writable: bool,
+    pda_seeds: Vec<SeedSpec>,
+}
+
+#[derive(Debug, Clone)]
+enum SeedSpec {
+    Const(Vec<u8>),
+    Account(String),
+}
+
+#[derive(Debug, Clone)]
+struct ArgSpec {
+    name: String,
+    ty: Value,
+}
+
+fn load_program_specs(idl_dir: &Path, deploy_dir: &Path) -> Result<Vec<ProgramSpec>> {
+    let deploy_sos: Vec<PathBuf> = fs::read_dir(deploy_dir)?
+        .filter_map(|e| e.ok().map(|x| x.path()))
+        .filter(|p| p.extension().and_then(|s| s.to_str()) == Some("so"))
+        .collect();
+
+    let mut programs = Vec::new();
+    for entry in fs::read_dir(idl_dir)? {
+        let path = entry?.path();
+        if path.extension().and_then(|s| s.to_str()) != Some("json") {
+            continue;
+        }
+
+        let idl_content = fs::read_to_string(&path)?;
+        let idl: Value = serde_json::from_str(&idl_content)
+            .with_context(|| format!("Invalid JSON in {}", path.display()))?;
+
+        let program_id_str = match idl["address"]
+            .as_str()
+            .or_else(|| idl["metadata"]["address"].as_str())
+        {
+            Some(v) => v,
+            None => continue,
+        };
+        let program_id: Address = match program_id_str.parse() {
+            Ok(v) => v,
+            Err(_) => continue,
+        };
+
+        let idl_file = path
+            .file_name()
+            .and_then(|s| s.to_str())
+            .unwrap_or("<unknown>")
+            .to_string();
+
+        let stem = path.file_stem().and_then(|s| s.to_str()).unwrap_or("");
+        let meta_name = idl["metadata"]["name"].as_str().unwrap_or("");
+        let deploy_so = resolve_so_file(deploy_dir, &deploy_sos, stem, meta_name)?;
+
+        let mut instructions = Vec::new();
+        if let Some(ixs) = idl["instructions"].as_array() {
+            for ix in ixs {
+                if let Some(spec) = parse_instruction(ix) {
+                    instructions.push(spec);
+                }
+            }
+        }
+
+        if !instructions.is_empty() {
+            programs.push(ProgramSpec {
+                idl_file,
+                program_id,
+                deploy_so,
+                instructions,
+            });
+        }
     }
-    if !stderr.trim().is_empty() {
-        println!("{:-^60}", " cargo test stderr ");
-        println!("{}", stderr);
+
+    Ok(programs)
+}
+
+fn resolve_so_file(
+    deploy_dir: &Path,
+    sos: &[PathBuf],
+    stem: &str,
+    meta_name: &str,
+) -> Result<PathBuf> {
+    let norm = |s: &str| s.replace('-', "_");
+    let candidates = [format!("{}.so", norm(stem)), format!("{}.so", norm(meta_name))];
+
+    for c in &candidates {
+        let p = deploy_dir.join(c);
+        if p.exists() {
+            return Ok(p);
+        }
     }
 
-    let cases = generate_edge_cases();
-    let generated_count = cases.len();
-    println!("{:-^60}", " Generated Cases ");
-    println!("generated_edge_cases: {}", generated_count);
-    checks.push(CheckResult::pass(
-        "edge_case_generation",
-        format!("generated {} deterministic cases", generated_count),
-    ));
-
-    println!("{:-^60}", " Case Execution ");
-    let executed_cases = execute_edge_cases(&deploy_so, &cases)?;
-    let case_passed = executed_cases.iter().filter(|c| c.passed).count();
-    let case_failed = executed_cases.len().saturating_sub(case_passed);
-    println!("executed_cases: {}", executed_cases.len());
-    println!("case_passed: {}", case_passed);
-    println!("case_failed: {}", case_failed);
-    if case_failed == 0 {
-        checks.push(CheckResult::pass(
-            "generated_case_execution",
-            format!("all {} generated cases matched expectations", executed_cases.len()),
-        ));
-    } else {
-        checks.push(CheckResult::fail(
-            "generated_case_execution",
-            format!(
-                "{} of {} generated cases did not match expectations",
-                case_failed,
-                executed_cases.len()
-            ),
-            "Inspect `executed_cases` in report.json".to_string(),
-        ));
+    if sos.len() == 1 {
+        return Ok(sos[0].clone());
     }
 
-    let report_path = write_report(
-        project_root,
-        &checks,
-        &cases,
-        &executed_cases,
-        &stdout,
-        &stderr,
-        passed,
-        failed,
-    )?;
-    println!("report: {}", report_path.display());
+    bail!(
+        "Could not resolve matching .so in {} for idl stem={} meta_name={}",
+        deploy_dir.display(),
+        stem,
+        meta_name
+    )
+}
 
-    println!("{:-^60}", " Summary ");
-    println!("passed: {}", passed);
-    println!("failed: {}", failed);
-    println!("case_passed: {}", case_passed);
-    println!("case_failed: {}", case_failed);
-
-    if failed > 0 || case_failed > 0 {
-        bail!("Test suite failed");
+fn parse_instruction(ix: &Value) -> Option<InstructionSpec> {
+    let name = ix["name"].as_str()?.to_string();
+    let discriminator = ix["discriminator"]
+        .as_array()?
+        .iter()
+        .filter_map(|v| v.as_u64().map(|n| n as u8))
+        .collect::<Vec<_>>();
+    if discriminator.len() != 8 {
+        return None;
     }
 
-    Ok(())
+    let mut accounts = Vec::new();
+    if let Some(accs) = ix["accounts"].as_array() {
+        for a in accs {
+            let name = a["name"].as_str().unwrap_or("unknown").to_string();
+            let signer = a["signer"].as_bool().unwrap_or(false);
+            let writable = a["writable"].as_bool().unwrap_or(false);
+
+            let mut pda_seeds = Vec::new();
+            if let Some(seeds) = a["pda"]["seeds"].as_array() {
+                for s in seeds {
+                    match s["kind"].as_str().unwrap_or("") {
+                        "const" => {
+                            if let Some(bytes) = s["value"].as_array() {
+                                let b = bytes
+                                    .iter()
+                                    .filter_map(|v| v.as_u64().map(|n| n as u8))
+                                    .collect::<Vec<_>>();
+                                pda_seeds.push(SeedSpec::Const(b));
+                            }
+                        }
+                        "account" => {
+                            if let Some(path) = s["path"].as_str() {
+                                pda_seeds.push(SeedSpec::Account(path.to_string()));
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+
+            accounts.push(AccountSpec {
+                name,
+                signer,
+                writable,
+                pda_seeds,
+            });
+        }
+    }
+
+    let mut args = Vec::new();
+    if let Some(a) = ix["args"].as_array() {
+        for arg in a {
+            let name = arg["name"].as_str().unwrap_or("arg").to_string();
+            let ty = arg["type"].clone();
+            args.push(ArgSpec { name, ty });
+        }
+    }
+
+    Some(InstructionSpec {
+        name,
+        discriminator,
+        accounts,
+        args,
+    })
+}
+
+#[derive(Debug, Clone)]
+struct EdgeCase {
+    id: String,
+    idl_file: String,
+    program_id: Address,
+    instruction: InstructionSpec,
+    mutation: Mutation,
+    expectation: Expectation,
+}
+
+#[derive(Debug, Clone)]
+enum Mutation {
+    None,
+    WrongProgramId,
+    TruncateData,
+    WrongPda { account: String },
+}
+
+#[derive(Debug, Clone, Copy)]
+enum Expectation {
+    MustFail,
+    Any,
+}
+
+fn generate_edge_cases(programs: &[ProgramSpec]) -> Vec<EdgeCase> {
+    let mut cases = Vec::new();
+
+    for p in programs {
+        for ix in &p.instructions {
+            cases.push(EdgeCase {
+                id: format!("{}_{}_base", p.idl_file, ix.name),
+                idl_file: p.idl_file.clone(),
+                program_id: p.program_id,
+                instruction: ix.clone(),
+                mutation: Mutation::None,
+                expectation: Expectation::Any,
+            });
+
+            cases.push(EdgeCase {
+                id: format!("{}_{}_wrong_program", p.idl_file, ix.name),
+                idl_file: p.idl_file.clone(),
+                program_id: p.program_id,
+                instruction: ix.clone(),
+                mutation: Mutation::WrongProgramId,
+                expectation: Expectation::MustFail,
+            });
+
+            cases.push(EdgeCase {
+                id: format!("{}_{}_truncate_data", p.idl_file, ix.name),
+                idl_file: p.idl_file.clone(),
+                program_id: p.program_id,
+                instruction: ix.clone(),
+                mutation: Mutation::TruncateData,
+                expectation: Expectation::MustFail,
+            });
+
+            for acc in &ix.accounts {
+                if !acc.pda_seeds.is_empty() {
+                    cases.push(EdgeCase {
+                        id: format!("{}_{}_wrong_pda_{}", p.idl_file, ix.name, acc.name),
+                        idl_file: p.idl_file.clone(),
+                        program_id: p.program_id,
+                        instruction: ix.clone(),
+                        mutation: Mutation::WrongPda {
+                            account: acc.name.clone(),
+                        },
+                        expectation: Expectation::MustFail,
+                    });
+                }
+            }
+        }
+    }
+
+    cases
+}
+
+#[derive(Debug)]
+struct ExecutedCase {
+    id: String,
+    idl_file: String,
+    instruction: String,
+    mutation: String,
+    expected_success: Option<bool>,
+    actual_success: bool,
+    passed: bool,
+    error: Option<String>,
+}
+
+fn execute_edge_cases(programs: &[ProgramSpec], cases: &[EdgeCase]) -> Result<Vec<ExecutedCase>> {
+    let mut program_bytes = HashMap::new();
+    for p in programs {
+        let bytes = fs::read(&p.deploy_so)
+            .with_context(|| format!("Failed to read {}", p.deploy_so.display()))?;
+        program_bytes.insert(p.program_id, bytes);
+    }
+
+    let mut out = Vec::with_capacity(cases.len());
+    for case in cases {
+        let bytes = match program_bytes.get(&case.program_id) {
+            Some(v) => v,
+            None => continue,
+        };
+        let run = run_case(bytes, case);
+        let (actual_success, error) = match run {
+            Ok(()) => (true, None),
+            Err(e) => (false, Some(e)),
+        };
+
+        let (expected_success, passed) = match case.expectation {
+            Expectation::Any => (None, true),
+            Expectation::MustFail => (Some(false), !actual_success),
+        };
+
+        out.push(ExecutedCase {
+            id: case.id.clone(),
+            idl_file: case.idl_file.clone(),
+            instruction: case.instruction.name.clone(),
+            mutation: match &case.mutation {
+                Mutation::None => "none".to_string(),
+                Mutation::WrongProgramId => "wrong_program_id".to_string(),
+                Mutation::TruncateData => "truncate_data".to_string(),
+                Mutation::WrongPda { account } => format!("wrong_pda:{}", account),
+            },
+            expected_success,
+            actual_success,
+            passed,
+            error,
+        });
+    }
+
+    Ok(out)
+}
+
+fn run_case(program_bytes: &[u8], case: &EdgeCase) -> std::result::Result<(), String> {
+    let mut svm = LiteSVM::new();
+    svm.add_program(case.program_id, program_bytes)
+        .map_err(|e| format!("add_program failed: {e:?}"))?;
+
+    let payer = Keypair::new();
+    svm.airdrop(&payer.pubkey(), 10_000_000_000)
+        .map_err(|e| format!("airdrop failed: {e:?}"))?;
+
+    let (account_metas, signer_keys) = build_accounts(case, &payer)?;
+    let mut data = encode_instruction_data(&case.instruction)?;
+
+    if matches!(case.mutation, Mutation::TruncateData) && !data.is_empty() {
+        data.pop();
+    }
+
+    let program_id = match case.mutation {
+        Mutation::WrongProgramId => Address::from(Keypair::new().pubkey().to_bytes()),
+        _ => case.program_id,
+    };
+
+    let ix = Instruction {
+        program_id,
+        accounts: account_metas,
+        data,
+    };
+
+    send_ix(&mut svm, &payer, &signer_keys, ix)
+}
+
+fn build_accounts(
+    case: &EdgeCase,
+    payer: &Keypair,
+) -> std::result::Result<(Vec<AccountMeta>, Vec<Keypair>), String> {
+    let mut signer_by_name: HashMap<String, Keypair> = HashMap::new();
+    let mut pubkey_by_name: HashMap<String, Address> = HashMap::new();
+
+    for acc in &case.instruction.accounts {
+        if acc.signer {
+            if pubkey_by_name.is_empty() {
+                pubkey_by_name.insert(acc.name.clone(), payer.pubkey());
+            } else {
+                let kp = Keypair::new();
+                pubkey_by_name.insert(acc.name.clone(), kp.pubkey());
+                signer_by_name.insert(acc.name.clone(), kp);
+            }
+        } else {
+            pubkey_by_name.insert(acc.name.clone(), Keypair::new().pubkey());
+        }
+    }
+
+    // Resolve PDA accounts from known account seeds.
+    for acc in &case.instruction.accounts {
+        if acc.pda_seeds.is_empty() {
+            continue;
+        }
+
+        let mut seeds: Vec<Vec<u8>> = Vec::new();
+        let mut resolvable = true;
+        for seed in &acc.pda_seeds {
+            match seed {
+                SeedSpec::Const(bytes) => seeds.push(bytes.clone()),
+                SeedSpec::Account(path) => match pubkey_by_name.get(path) {
+                    Some(pk) => seeds.push(pk.to_bytes().to_vec()),
+                    None => {
+                        resolvable = false;
+                        break;
+                    }
+                },
+            }
+        }
+
+        if !resolvable {
+            continue;
+        }
+
+        let seed_slices = seeds.iter().map(Vec::as_slice).collect::<Vec<_>>();
+        let program_pubkey = anchor_lang::prelude::Pubkey::new_from_array(case.program_id.to_bytes());
+        let (pda, _) = anchor_lang::prelude::Pubkey::find_program_address(&seed_slices, &program_pubkey);
+        pubkey_by_name.insert(acc.name.clone(), Address::from(pda.to_bytes()));
+    }
+
+    if let Mutation::WrongPda { account } = &case.mutation {
+        if pubkey_by_name.contains_key(account) {
+            pubkey_by_name.insert(account.clone(), Keypair::new().pubkey());
+        }
+    }
+
+    let mut metas = Vec::new();
+    let mut extra_signers = Vec::new();
+
+    for acc in &case.instruction.accounts {
+        let key = pubkey_by_name
+            .get(&acc.name)
+            .copied()
+            .unwrap_or_else(|| Keypair::new().pubkey());
+
+        let meta = if acc.writable {
+            AccountMeta::new(key, acc.signer)
+        } else {
+            AccountMeta::new_readonly(key, acc.signer)
+        };
+        metas.push(meta);
+
+        if let Some(kp) = signer_by_name.remove(&acc.name) {
+            extra_signers.push(kp);
+        }
+    }
+
+    Ok((metas, extra_signers))
+}
+
+fn encode_instruction_data(ix: &InstructionSpec) -> std::result::Result<Vec<u8>, String> {
+    let mut out = ix.discriminator.clone();
+    for arg in &ix.args {
+        let bytes = encode_arg_zero(&arg.ty)
+            .map_err(|e| format!("arg {} type not supported: {}", arg.name, e))?;
+        out.extend(bytes);
+    }
+    Ok(out)
+}
+
+fn encode_arg_zero(ty: &Value) -> std::result::Result<Vec<u8>, &'static str> {
+    if let Some(s) = ty.as_str() {
+        return match s {
+            "bool" => Ok(vec![0]),
+            "u8" | "i8" => Ok(vec![0]),
+            "u16" | "i16" => Ok(vec![0; 2]),
+            "u32" | "i32" => Ok(vec![0; 4]),
+            "u64" | "i64" => Ok(vec![0; 8]),
+            "u128" | "i128" => Ok(vec![0; 16]),
+            "pubkey" => Ok(vec![0; 32]),
+            _ => Err("primitive not supported"),
+        };
+    }
+
+    if let Some(obj) = ty.as_object() {
+        if let Some(arr_ty) = obj.get("array") {
+            let inner = arr_ty
+                .as_array()
+                .and_then(|a| if a.len() == 2 { Some((&a[0], &a[1])) } else { None })
+                .ok_or("invalid array type")?;
+            let inner_bytes = encode_arg_zero(inner.0)?;
+            let len = inner.1.as_u64().ok_or("invalid array len")? as usize;
+            return Ok(inner_bytes.into_iter().cycle().take(len).collect());
+        }
+    }
+
+    Err("complex arg type not supported")
+}
+
+fn send_ix(
+    svm: &mut LiteSVM,
+    payer: &Keypair,
+    extra_signers: &[Keypair],
+    ix: Instruction,
+) -> std::result::Result<(), String> {
+    let blockhash = svm.latest_blockhash();
+    let msg = Message::new_with_blockhash(&[ix], Some(&payer.pubkey()), &blockhash);
+
+    let mut signers: Vec<&Keypair> = Vec::with_capacity(1 + extra_signers.len());
+    signers.push(payer);
+    for s in extra_signers {
+        signers.push(s);
+    }
+
+    let tx = Transaction::new(&signers, msg, blockhash);
+    svm.send_transaction(tx)
+        .map(|_| ())
+        .map_err(|e| format!("transaction failed: {e:?}"))
 }
 
 #[derive(Debug)]
@@ -305,342 +799,38 @@ impl CheckResult {
     }
 }
 
-#[derive(Debug)]
-struct EdgeCase {
-    id: String,
-    category: &'static str,
-    instruction: &'static str,
-    expected: &'static str,
-    data: Value,
-}
+fn write_min_report(project_root: &Path, checks: &[CheckResult]) -> Result<()> {
+    let report_dir = project_root.join("target").join("anchor-suite");
+    fs::create_dir_all(&report_dir)?;
+    let report_path = report_dir.join("report.json");
 
-#[derive(Debug)]
-struct ExecutedCase {
-    id: String,
-    category: String,
-    instruction: String,
-    expected_success: bool,
-    actual_success: bool,
-    passed: bool,
-    error: Option<String>,
-}
+    let checks_json: Vec<Value> = checks
+        .iter()
+        .map(|c| {
+            json!({
+                "name": c.name,
+                "ok": c.ok,
+                "detail": c.detail,
+                "hint": c.hint
+            })
+        })
+        .collect();
 
-fn execute_edge_cases(deploy_so: &Path, cases: &[EdgeCase]) -> Result<Vec<ExecutedCase>> {
-    let program_bytes = fs::read(deploy_so)
-        .with_context(|| format!("Failed to read {}", deploy_so.display()))?;
-    let mut results = Vec::with_capacity(cases.len());
-
-    for case in cases {
-        let expected_success = expected_success(case);
-        let actual = run_case_once(&program_bytes, case);
-        let (actual_success, error) = match actual {
-            Ok(()) => (true, None),
-            Err(e) => (false, Some(e)),
-        };
-        let passed = actual_success == expected_success;
-        results.push(ExecutedCase {
-            id: case.id.clone(),
-            category: case.category.to_string(),
-            instruction: case.instruction.to_string(),
-            expected_success,
-            actual_success,
-            passed,
-            error,
-        });
-    }
-
-    Ok(results)
-}
-
-fn expected_success(case: &EdgeCase) -> bool {
-    match (case.category, case.instruction) {
-        ("amount-boundary", "deposit") => case
-            .data
-            .get("amount")
-            .and_then(|v| v.as_u64())
-            .map(|a| a <= 5_000_000_000)
-            .unwrap_or(false),
-        ("amount-boundary", "withdraw") => false,
-        _ => false,
-    }
-}
-
-fn run_case_once(program_bytes: &[u8], case: &EdgeCase) -> std::result::Result<(), String> {
-    let mut svm = LiteSVM::new();
-    let program_address = Address::from(PROGRAM_ID.to_bytes());
-    svm.add_program(program_address, program_bytes)
-        .map_err(|e| format!("add_program failed: {e:?}"))?;
-
-    let payer = Keypair::new();
-    svm.airdrop(&payer.pubkey(), 5_000_000_000)
-        .map_err(|e| format!("airdrop failed: {e:?}"))?;
-
-    match case.category {
-        "amount-boundary" => run_amount_case(&mut svm, &payer, case),
-        "authorization" => run_authorization_case(&mut svm),
-        "pda-seeds" => run_seed_case(&mut svm, &payer, case),
-        "account-shape" => run_account_shape_case(&mut svm, &payer),
-        _ => Err(format!("unknown case category: {}", case.category)),
-    }
-}
-
-fn run_amount_case(
-    svm: &mut LiteSVM,
-    payer: &Keypair,
-    case: &EdgeCase,
-) -> std::result::Result<(), String> {
-    let amount = case
-        .data
-        .get("amount")
-        .and_then(|v| v.as_u64())
-        .ok_or_else(|| "missing amount".to_string())?;
-
-    let (vault_address, _) = derive_vault_address(&payer.pubkey());
-    send_initialize_vault(svm, payer, vault_address)?;
-
-    match case.instruction {
-        "deposit" => send_deposit(svm, payer, vault_address, amount),
-        "withdraw" => {
-            send_deposit(svm, payer, vault_address, 1_000_000)?;
-            send_withdraw(svm, payer, vault_address, amount)
-        }
-        other => Err(format!("unsupported amount instruction: {other}")),
-    }
-}
-
-fn run_authorization_case(svm: &mut LiteSVM) -> std::result::Result<(), String> {
-    let owner = Keypair::new();
-    let attacker = Keypair::new();
-    svm.airdrop(&owner.pubkey(), 5_000_000_000)
-        .map_err(|e| format!("owner airdrop failed: {e:?}"))?;
-    svm.airdrop(&attacker.pubkey(), 5_000_000_000)
-        .map_err(|e| format!("attacker airdrop failed: {e:?}"))?;
-
-    let (owner_vault, _) = derive_vault_address(&owner.pubkey());
-    send_initialize_vault(svm, &owner, owner_vault)?;
-    send_deposit(svm, &owner, owner_vault, 100_000)?;
-    send_withdraw(svm, &attacker, owner_vault, 1)
-}
-
-fn run_seed_case(
-    svm: &mut LiteSVM,
-    payer: &Keypair,
-    _case: &EdgeCase,
-) -> std::result::Result<(), String> {
-    let (vault_address, _) = derive_vault_address(&payer.pubkey());
-    send_initialize_vault(svm, payer, vault_address)?;
-
-    let wrong_vault = Keypair::new().pubkey();
-    send_deposit(svm, payer, wrong_vault, 10)
-}
-
-fn run_account_shape_case(svm: &mut LiteSVM, payer: &Keypair) -> std::result::Result<(), String> {
-    let (vault_address, _) = derive_vault_address(&payer.pubkey());
-    let wrong_system_program = payer.pubkey();
-    let ix = Instruction {
-        program_id: Address::from(PROGRAM_ID.to_bytes()),
-        accounts: vec![
-            AccountMeta::new(vault_address, false),
-            AccountMeta::new(payer.pubkey(), true),
-            AccountMeta::new_readonly(wrong_system_program, false),
-        ],
-        data: vault_ix::InitializeVault {}.data(),
-    };
-    send_ix(svm, payer, ix)
-}
-
-fn derive_vault_address(user: &Address) -> (Address, u8) {
-    let user_pubkey = Pubkey::new_from_array(user.to_bytes());
-    let (vault_pubkey, bump) =
-        Pubkey::find_program_address(&[b"vault", user_pubkey.as_ref()], &PROGRAM_ID);
-    (Address::from(vault_pubkey.to_bytes()), bump)
-}
-
-fn send_initialize_vault(
-    svm: &mut LiteSVM,
-    payer: &Keypair,
-    vault_address: Address,
-) -> std::result::Result<(), String> {
-    let system_program: Address = "11111111111111111111111111111111"
-        .parse()
-        .map_err(|e| format!("invalid system program address: {e}"))?;
-    let ix = Instruction {
-        program_id: Address::from(PROGRAM_ID.to_bytes()),
-        accounts: vec![
-            AccountMeta::new(vault_address, false),
-            AccountMeta::new(payer.pubkey(), true),
-            AccountMeta::new_readonly(system_program, false),
-        ],
-        data: vault_ix::InitializeVault {}.data(),
-    };
-    send_ix(svm, payer, ix)
-}
-
-fn send_deposit(
-    svm: &mut LiteSVM,
-    payer: &Keypair,
-    vault_address: Address,
-    amount: u64,
-) -> std::result::Result<(), String> {
-    let system_program: Address = "11111111111111111111111111111111"
-        .parse()
-        .map_err(|e| format!("invalid system program address: {e}"))?;
-    let ix = Instruction {
-        program_id: Address::from(PROGRAM_ID.to_bytes()),
-        accounts: vec![
-            AccountMeta::new(vault_address, false),
-            AccountMeta::new(payer.pubkey(), true),
-            AccountMeta::new_readonly(system_program, false),
-        ],
-        data: vault_ix::Deposit { amount }.data(),
-    };
-    send_ix(svm, payer, ix)
-}
-
-fn send_withdraw(
-    svm: &mut LiteSVM,
-    payer: &Keypair,
-    vault_address: Address,
-    amount: u64,
-) -> std::result::Result<(), String> {
-    let system_program: Address = "11111111111111111111111111111111"
-        .parse()
-        .map_err(|e| format!("invalid system program address: {e}"))?;
-    let ix = Instruction {
-        program_id: Address::from(PROGRAM_ID.to_bytes()),
-        accounts: vec![
-            AccountMeta::new(vault_address, false),
-            AccountMeta::new(payer.pubkey(), true),
-            AccountMeta::new_readonly(system_program, false),
-        ],
-        data: vault_ix::Withdraw { amount }.data(),
-    };
-    send_ix(svm, payer, ix)
-}
-
-fn send_ix(svm: &mut LiteSVM, payer: &Keypair, ix: Instruction) -> std::result::Result<(), String> {
-    let blockhash = svm.latest_blockhash();
-    let msg = Message::new_with_blockhash(&[ix], Some(&payer.pubkey()), &blockhash);
-    let tx = Transaction::new(&[payer], msg, blockhash);
-    svm.send_transaction(tx)
-        .map(|_| ())
-        .map_err(|e| format!("transaction failed: {e:?}"))
-}
-
-fn generate_edge_cases() -> Vec<EdgeCase> {
-    let mut cases = Vec::new();
-
-    // Amount boundaries across deposit/withdraw.
-    let amount_values: [u64; 16] = [
-        0,
-        1,
-        2,
-        5,
-        10,
-        100,
-        1_000,
-        10_000,
-        100_000,
-        1_000_000,
-        10_000_000,
-        100_000_000,
-        u32::MAX as u64,
-        (u32::MAX as u64) + 1,
-        u64::MAX - 1,
-        u64::MAX,
-    ];
-    for (idx, amount) in amount_values.iter().enumerate() {
-        cases.push(EdgeCase {
-            id: format!("amount_deposit_{idx:02}"),
-            category: "amount-boundary",
-            instruction: "deposit",
-            expected: "depends-on-balance-and-runtime",
-            data: json!({ "amount": amount }),
-        });
-        cases.push(EdgeCase {
-            id: format!("amount_withdraw_{idx:02}"),
-            category: "amount-boundary",
-            instruction: "withdraw",
-            expected: "depends-on-vault-state-and-authority",
-            data: json!({ "amount": amount }),
-        });
-    }
-
-    // Authority and signer mismatch permutations.
-    for idx in 0..10 {
-        cases.push(EdgeCase {
-            id: format!("authority_mismatch_{idx:02}"),
-            category: "authorization",
-            instruction: "withdraw",
-            expected: "should-fail-unauthorized",
-            data: json!({
-                "authority_matches_user": false,
-                "signer_present": idx % 2 == 0,
-                "mutated_signer_index": idx
-            }),
-        });
-    }
-
-    // PDA seed mutation permutations.
-    let seed_mutations = [
-        "swap_seed_order",
-        "truncate_const_seed",
-        "append_extra_seed",
-        "wrong_user_pubkey_seed",
-        "wrong_bump",
-        "empty_seed_list",
-        "const_seed_case_change",
-        "const_seed_single_byte_off",
-        "random_seed_bytes",
-        "seed_type_mismatch",
-        "missing_account_seed_path",
-        "duplicate_seed_entry",
-    ];
-    for (idx, mutation) in seed_mutations.iter().enumerate() {
-        cases.push(EdgeCase {
-            id: format!("pda_seed_mutation_{idx:02}"),
-            category: "pda-seeds",
-            instruction: "deposit",
-            expected: "should-fail-constraint-seeds",
-            data: json!({ "mutation": mutation }),
-        });
-    }
-
-    // Account meta / shape mutations.
-    let meta_mutations = [
-        "vault_not_writable",
-        "user_not_signer",
-        "system_program_missing",
-        "vault_account_missing",
-        "duplicate_user_account",
-        "wrong_system_program_id",
-        "vault_owner_mismatch",
-        "extra_unexpected_account",
-        "reordered_accounts",
-        "readonly_authority",
-    ];
-    for (idx, mutation) in meta_mutations.iter().enumerate() {
-        cases.push(EdgeCase {
-            id: format!("account_meta_mutation_{idx:02}"),
-            category: "account-shape",
-            instruction: "initialize_vault",
-            expected: "should-fail-account-validation",
-            data: json!({ "mutation": mutation }),
-        });
-    }
-
-    cases
+    let report = json!({
+        "tool": "anchor-suite",
+        "step": 4,
+        "checks": checks_json
+    });
+    fs::write(&report_path, serde_json::to_string_pretty(&report)?)?;
+    Ok(())
 }
 
 fn write_report(
     project_root: &Path,
     checks: &[CheckResult],
-    cases: &[EdgeCase],
-    executed_cases: &[ExecutedCase],
-    cargo_test_stdout: &str,
-    cargo_test_stderr: &str,
-    passed: usize,
-    failed: usize,
+    generated: &[EdgeCase],
+    executed: &[ExecutedCase],
+    smoke: &Option<SmokeResult>,
 ) -> Result<PathBuf> {
     let report_dir = project_root.join("target").join("anchor-suite");
     fs::create_dir_all(&report_dir)
@@ -659,26 +849,28 @@ fn write_report(
         })
         .collect();
 
-    let cases_json: Vec<Value> = cases
+    let generated_json: Vec<Value> = generated
         .iter()
         .map(|c| {
             json!({
                 "id": c.id,
-                "category": c.category,
-                "instruction": c.instruction,
-                "expected": c.expected,
-                "data": c.data
+                "idl_file": c.idl_file,
+                "program_id": c.program_id.to_string(),
+                "instruction": c.instruction.name,
+                "mutation": format!("{:?}", c.mutation),
+                "expectation": format!("{:?}", c.expectation)
             })
         })
         .collect();
 
-    let executed_cases_json: Vec<Value> = executed_cases
+    let executed_json: Vec<Value> = executed
         .iter()
         .map(|c| {
             json!({
                 "id": c.id,
-                "category": c.category,
+                "idl_file": c.idl_file,
                 "instruction": c.instruction,
+                "mutation": c.mutation,
                 "expected_success": c.expected_success,
                 "actual_success": c.actual_success,
                 "passed": c.passed,
@@ -687,28 +879,35 @@ fn write_report(
         })
         .collect();
 
-    let report = json!({
-        "tool": "anchor-suite",
-        "step": 3,
-        "summary": {
-            "passed": passed,
-            "failed": failed,
-            "generated_edge_cases": cases.len()
-        },
-        "checks": checks_json,
-        "execution": {
-            "command": "cargo test -p anchor-testing-suite --test litesvm_test -- --nocapture",
-            "stdout": cargo_test_stdout,
-            "stderr": cargo_test_stderr
-        },
-        "generated_cases": cases_json
-        ,
-        "executed_cases": executed_cases_json
+    let summary = json!({
+        "checks_failed": checks.iter().filter(|c| !c.ok).count(),
+        "generated_edge_cases": generated.len(),
+        "executed_cases": executed.len(),
+        "case_passed": executed.iter().filter(|c| c.passed).count(),
+        "case_failed": executed.iter().filter(|c| !c.passed).count()
     });
 
-    let report_string =
-        serde_json::to_string_pretty(&report).context("Failed to serialize JSON report")?;
-    fs::write(&report_path, report_string)
+    let smoke_json = match smoke {
+        Some(s) => json!({
+            "ok": s.ok,
+            "detail": s.detail,
+            "stdout": s.stdout,
+            "stderr": s.stderr
+        }),
+        None => json!(null),
+    };
+
+    let report = json!({
+        "tool": "anchor-suite",
+        "step": 4,
+        "summary": summary,
+        "checks": checks_json,
+        "optional_smoke": smoke_json,
+        "generated_cases": generated_json,
+        "executed_cases": executed_json
+    });
+
+    fs::write(&report_path, serde_json::to_string_pretty(&report)?)
         .with_context(|| format!("Failed to write {}", report_path.display()))?;
 
     Ok(report_path)
