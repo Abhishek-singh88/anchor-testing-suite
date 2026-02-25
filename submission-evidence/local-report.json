@@ -1,0 +1,1222 @@
+{
+  "checks": [
+    {
+      "detail": "./target/deploy/anchor_testing_suite.so",
+      "hint": null,
+      "name": "program_artifact_exists",
+      "ok": true
+    },
+    {
+      "detail": "./programs/anchor-testing-suite/tests/litesvm_test.rs",
+      "hint": null,
+      "name": "litesvm_test_exists",
+      "ok": true
+    },
+    {
+      "detail": "cargo test -p anchor-testing-suite --test litesvm_test -- --nocapture",
+      "hint": null,
+      "name": "litesvm_smoke_test",
+      "ok": true
+    },
+    {
+      "detail": "generated 64 deterministic cases",
+      "hint": null,
+      "name": "edge_case_generation",
+      "ok": true
+    },
+    {
+      "detail": "all 64 generated cases matched expectations",
+      "hint": null,
+      "name": "generated_case_execution",
+      "ok": true
+    }
+  ],
+  "executed_cases": [
+    {
+      "actual_success": true,
+      "category": "amount-boundary",
+      "error": null,
+      "expected_success": true,
+      "id": "amount_deposit_00",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "amount-boundary",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, InvalidArgument), meta: TransactionMetadata { signature: 66ivFTG4YDzWnpHqZWDTv3hSLBDmiqZ8yYE2eLYByVZuuaacrgR6KRJuE3Fvp54rZDJPHGGVqc6Jvhu44esKaGMX, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program 11111111111111111111111111111111 invoke [2]\", \"Transfer: `from` must not carry data\", \"Program 11111111111111111111111111111111 failed: invalid program argument\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 6229 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: invalid program argument\"], inner_instructions: [[InnerInstruction { instruction: CompiledInstruction { program_id_index: 2, accounts: [1, 0], data: [2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] }, stack_height: 2 }]], compute_units_consumed: 6229, return_data: TransactionReturnData { program_id: 11111111111111111111111111111111, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "amount_withdraw_00",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": true,
+      "category": "amount-boundary",
+      "error": null,
+      "expected_success": true,
+      "id": "amount_deposit_01",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "amount-boundary",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, InvalidArgument), meta: TransactionMetadata { signature: 3KkpVykMqn5QRFfXsZpMyVUKH9SkAfsX9coEUFYxMY2ZmUkyvPiUrf2ZNuUajjASHJL57DiPkpzjXpPBsoxkWkuR, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program 11111111111111111111111111111111 invoke [2]\", \"Transfer: `from` must not carry data\", \"Program 11111111111111111111111111111111 failed: invalid program argument\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 4729 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: invalid program argument\"], inner_instructions: [[InnerInstruction { instruction: CompiledInstruction { program_id_index: 2, accounts: [1, 0], data: [2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0] }, stack_height: 2 }]], compute_units_consumed: 4729, return_data: TransactionReturnData { program_id: 11111111111111111111111111111111, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "amount_withdraw_01",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": true,
+      "category": "amount-boundary",
+      "error": null,
+      "expected_success": true,
+      "id": "amount_deposit_02",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "amount-boundary",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, InvalidArgument), meta: TransactionMetadata { signature: 4LjE55CCPxuMDerMsLhYwDP5WS2KffZrkJSKDtab3qtWuc9DdDXfzx2AmUENw8WSYCjaSkMU7z3wRAkgzKf3hAHB, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program 11111111111111111111111111111111 invoke [2]\", \"Transfer: `from` must not carry data\", \"Program 11111111111111111111111111111111 failed: invalid program argument\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 6229 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: invalid program argument\"], inner_instructions: [[InnerInstruction { instruction: CompiledInstruction { program_id_index: 2, accounts: [1, 0], data: [2, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0] }, stack_height: 2 }]], compute_units_consumed: 6229, return_data: TransactionReturnData { program_id: 11111111111111111111111111111111, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "amount_withdraw_02",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": true,
+      "category": "amount-boundary",
+      "error": null,
+      "expected_success": true,
+      "id": "amount_deposit_03",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "amount-boundary",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, InvalidArgument), meta: TransactionMetadata { signature: 2qeDgU4nF1tzyYwMEuscPAL9vRaBgtZ7xNtgCkNStK2RQMG7km68xrekEvWpzm3zXmtAxQxLKaMhFHHPAN8MK6AW, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program 11111111111111111111111111111111 invoke [2]\", \"Transfer: `from` must not carry data\", \"Program 11111111111111111111111111111111 failed: invalid program argument\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 4729 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: invalid program argument\"], inner_instructions: [[InnerInstruction { instruction: CompiledInstruction { program_id_index: 2, accounts: [1, 0], data: [2, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0] }, stack_height: 2 }]], compute_units_consumed: 4729, return_data: TransactionReturnData { program_id: 11111111111111111111111111111111, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "amount_withdraw_03",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": true,
+      "category": "amount-boundary",
+      "error": null,
+      "expected_success": true,
+      "id": "amount_deposit_04",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "amount-boundary",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, InvalidArgument), meta: TransactionMetadata { signature: 4a1Th6znyd7AoZNd3jhpjNCSeivRXivhvGBi6kSr6yWkMNiBkJ1baGWvPkq7qB1oRrNBKQ3eMfmTR2itNeAr5sTA, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program 11111111111111111111111111111111 invoke [2]\", \"Transfer: `from` must not carry data\", \"Program 11111111111111111111111111111111 failed: invalid program argument\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 4729 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: invalid program argument\"], inner_instructions: [[InnerInstruction { instruction: CompiledInstruction { program_id_index: 2, accounts: [1, 0], data: [2, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0] }, stack_height: 2 }]], compute_units_consumed: 4729, return_data: TransactionReturnData { program_id: 11111111111111111111111111111111, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "amount_withdraw_04",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": true,
+      "category": "amount-boundary",
+      "error": null,
+      "expected_success": true,
+      "id": "amount_deposit_05",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "amount-boundary",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, InvalidArgument), meta: TransactionMetadata { signature: 2yf6qpybQKhCQ9cdLfyRzZx9BjSruEY3an2V95KoSAa2TpajgpGtVhtQ8cL3DtJnV3h7zN5ReSfnn6vXrX3NZRJy, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program 11111111111111111111111111111111 invoke [2]\", \"Transfer: `from` must not carry data\", \"Program 11111111111111111111111111111111 failed: invalid program argument\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 7729 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: invalid program argument\"], inner_instructions: [[InnerInstruction { instruction: CompiledInstruction { program_id_index: 2, accounts: [1, 0], data: [2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0] }, stack_height: 2 }]], compute_units_consumed: 7729, return_data: TransactionReturnData { program_id: 11111111111111111111111111111111, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "amount_withdraw_05",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": true,
+      "category": "amount-boundary",
+      "error": null,
+      "expected_success": true,
+      "id": "amount_deposit_06",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "amount-boundary",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, InvalidArgument), meta: TransactionMetadata { signature: MGbMbYpQH9NzjqGat3WLNRLVNr7tsWEcExGPvhBsKj9fqJjnbLoCydo2XBsfKSfsWrYECpC3VXXr8HPFcbCPict, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program 11111111111111111111111111111111 invoke [2]\", \"Transfer: `from` must not carry data\", \"Program 11111111111111111111111111111111 failed: invalid program argument\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 4729 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: invalid program argument\"], inner_instructions: [[InnerInstruction { instruction: CompiledInstruction { program_id_index: 2, accounts: [1, 0], data: [2, 0, 0, 0, 232, 3, 0, 0, 0, 0, 0, 0] }, stack_height: 2 }]], compute_units_consumed: 4729, return_data: TransactionReturnData { program_id: 11111111111111111111111111111111, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "amount_withdraw_06",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": true,
+      "category": "amount-boundary",
+      "error": null,
+      "expected_success": true,
+      "id": "amount_deposit_07",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "amount-boundary",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, InvalidArgument), meta: TransactionMetadata { signature: 3RZSPyqZFiMvFXbpxbEpE2eCSUDFKsic5ZJaPrWCwSE5u4oHMqSZxoxj5sJo5xYNDomVuQZATNMTWtNMd44Y3ZRq, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program 11111111111111111111111111111111 invoke [2]\", \"Transfer: `from` must not carry data\", \"Program 11111111111111111111111111111111 failed: invalid program argument\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 4729 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: invalid program argument\"], inner_instructions: [[InnerInstruction { instruction: CompiledInstruction { program_id_index: 2, accounts: [1, 0], data: [2, 0, 0, 0, 16, 39, 0, 0, 0, 0, 0, 0] }, stack_height: 2 }]], compute_units_consumed: 4729, return_data: TransactionReturnData { program_id: 11111111111111111111111111111111, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "amount_withdraw_07",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": true,
+      "category": "amount-boundary",
+      "error": null,
+      "expected_success": true,
+      "id": "amount_deposit_08",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "amount-boundary",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, InvalidArgument), meta: TransactionMetadata { signature: 3aKcVAcEy6fNH7vwqr1Hob8jAYDpHPqq6zGgyhyRbNKoZBRmq1WWakCJWkCUx8Z5h5Db7Ya8MRdj22usVyqJxAYJ, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program 11111111111111111111111111111111 invoke [2]\", \"Transfer: `from` must not carry data\", \"Program 11111111111111111111111111111111 failed: invalid program argument\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 10729 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: invalid program argument\"], inner_instructions: [[InnerInstruction { instruction: CompiledInstruction { program_id_index: 2, accounts: [1, 0], data: [2, 0, 0, 0, 160, 134, 1, 0, 0, 0, 0, 0] }, stack_height: 2 }]], compute_units_consumed: 10729, return_data: TransactionReturnData { program_id: 11111111111111111111111111111111, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "amount_withdraw_08",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": true,
+      "category": "amount-boundary",
+      "error": null,
+      "expected_success": true,
+      "id": "amount_deposit_09",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "amount-boundary",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, InvalidArgument), meta: TransactionMetadata { signature: iZPc8MsQfpMcFYwUJJJNzA78QAQbcNbZpRHVLPcL2HzGXGTFzcUjApKA1xKpaageDxqRb85muFzN9nHAvSa15m9, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program 11111111111111111111111111111111 invoke [2]\", \"Transfer: `from` must not carry data\", \"Program 11111111111111111111111111111111 failed: invalid program argument\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 4729 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: invalid program argument\"], inner_instructions: [[InnerInstruction { instruction: CompiledInstruction { program_id_index: 2, accounts: [1, 0], data: [2, 0, 0, 0, 64, 66, 15, 0, 0, 0, 0, 0] }, stack_height: 2 }]], compute_units_consumed: 4729, return_data: TransactionReturnData { program_id: 11111111111111111111111111111111, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "amount_withdraw_09",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": true,
+      "category": "amount-boundary",
+      "error": null,
+      "expected_success": true,
+      "id": "amount_deposit_10",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "amount-boundary",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(6000)), meta: TransactionMetadata { signature: 4hJaBQrwzdhSgwRPjsUBMAAY1Afw6xHogWfgaY5yhiV6mKiYH3xyZ2YicQxGrShdC9VeqBHS2yFinKk4JfbYeoxe, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program log: AnchorError thrown in programs/anchor-testing-suite/src/lib.rs:38. Error Code: InsufficientFunds. Error Number: 6000. Error Message: Insufficient funds in vault.\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 4721 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x1770\"], inner_instructions: [[]], compute_units_consumed: 4721, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "amount_withdraw_10",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": true,
+      "category": "amount-boundary",
+      "error": null,
+      "expected_success": true,
+      "id": "amount_deposit_11",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "amount-boundary",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(6000)), meta: TransactionMetadata { signature: mbCFzBjAUDESbGPDUqu5kQ74eKX6MCoBM5T6zUbRaKRGcGqNfqNoeA8qMxmdNcWjB8DQd6uaXVTWFvY8eNRDVDa, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program log: AnchorError thrown in programs/anchor-testing-suite/src/lib.rs:38. Error Code: InsufficientFunds. Error Number: 6000. Error Message: Insufficient funds in vault.\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 6221 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x1770\"], inner_instructions: [[]], compute_units_consumed: 6221, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "amount_withdraw_11",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": true,
+      "category": "amount-boundary",
+      "error": null,
+      "expected_success": true,
+      "id": "amount_deposit_12",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "amount-boundary",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(6000)), meta: TransactionMetadata { signature: 2ZU7tFqYedZTCNgkNtyiBwQBWAnR2xpjRKJrPc26nsu4sM6XfS36HE95Go5wmasUT3yQyV5U4JAvJmRqBFazWacy, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program log: AnchorError thrown in programs/anchor-testing-suite/src/lib.rs:38. Error Code: InsufficientFunds. Error Number: 6000. Error Message: Insufficient funds in vault.\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 4721 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x1770\"], inner_instructions: [[]], compute_units_consumed: 4721, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "amount_withdraw_12",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": true,
+      "category": "amount-boundary",
+      "error": null,
+      "expected_success": true,
+      "id": "amount_deposit_13",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "amount-boundary",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(6000)), meta: TransactionMetadata { signature: 5nr3J6RJEgoqDSNM2L2gg6sq5nai9XtcfW3gZfPd3xCtearcKVq8Ecaowcm2wZUgHLi5cHWgpSmDoDTsmoYApYJJ, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program log: AnchorError thrown in programs/anchor-testing-suite/src/lib.rs:38. Error Code: InsufficientFunds. Error Number: 6000. Error Message: Insufficient funds in vault.\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 16721 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x1770\"], inner_instructions: [[]], compute_units_consumed: 16721, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "amount_withdraw_13",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "amount-boundary",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(1)), meta: TransactionMetadata { signature: 4SyJKXCrMVAat9PhYUy1c66qpGNpLVcCewnVLNfkDMtuKKw2wALnhRtpT7gNzjn8E6AmRG9SN16DFChWFom3UT9u, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Deposit\", \"Program 11111111111111111111111111111111 invoke [2]\", \"Transfer: insufficient lamports 4998709360, need 18446744073709551614\", \"Program 11111111111111111111111111111111 failed: custom program error: 0x1\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 4659 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x1\"], inner_instructions: [[InnerInstruction { instruction: CompiledInstruction { program_id_index: 2, accounts: [0, 1], data: [2, 0, 0, 0, 254, 255, 255, 255, 255, 255, 255, 255] }, stack_height: 2 }]], compute_units_consumed: 4659, return_data: TransactionReturnData { program_id: 11111111111111111111111111111111, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "amount_deposit_14",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "amount-boundary",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(6000)), meta: TransactionMetadata { signature: 62VrayGvdwtutiHdDg5e82CsCaLADDNVa2Rwu9KjtjtNTmujMHp3G3vkkjwa85XDHighnZ6XTzyJ5jDXUHQAisva, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program log: AnchorError thrown in programs/anchor-testing-suite/src/lib.rs:38. Error Code: InsufficientFunds. Error Number: 6000. Error Message: Insufficient funds in vault.\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 4721 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x1770\"], inner_instructions: [[]], compute_units_consumed: 4721, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "amount_withdraw_14",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "amount-boundary",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(1)), meta: TransactionMetadata { signature: 5JnYgpp7ud6VYsG8zh3uFK7yCEghxFk7F5i3tCCaSjW5bchLFrXfTLTE5PWRHvHiZKeaYL8y3dfqsq4fgp74bcai, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Deposit\", \"Program 11111111111111111111111111111111 invoke [2]\", \"Transfer: insufficient lamports 4998709360, need 18446744073709551615\", \"Program 11111111111111111111111111111111 failed: custom program error: 0x1\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 4659 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x1\"], inner_instructions: [[InnerInstruction { instruction: CompiledInstruction { program_id_index: 2, accounts: [0, 1], data: [2, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255] }, stack_height: 2 }]], compute_units_consumed: 4659, return_data: TransactionReturnData { program_id: 11111111111111111111111111111111, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "amount_deposit_15",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "amount-boundary",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(6000)), meta: TransactionMetadata { signature: 4Lkdm1tQijX4YMCM7uzVgtTbT2TQYVWtkBytmYM3zNNQVDiyZNqZHyR9hHYyucT6T9Nxkg9Y9J11Q6gcv6hGWbv6, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program log: AnchorError thrown in programs/anchor-testing-suite/src/lib.rs:38. Error Code: InsufficientFunds. Error Number: 6000. Error Message: Insufficient funds in vault.\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 4721 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x1770\"], inner_instructions: [[]], compute_units_consumed: 4721, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "amount_withdraw_15",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "authorization",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(2006)), meta: TransactionMetadata { signature: 3LPUe3bu78NegJtVfnaZVUFG54LGdyX7niTJhKfUJVJK56eZ1uCLpmCsQyxBS9syrn2wqsv1uG5cseAX4kNuC1jf, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program log: AnchorError caused by account: vault. Error Code: ConstraintSeeds. Error Number: 2006. Error Message: A seeds constraint was violated.\", \"Program log: Left:\", \"Program log: 8rorxA9tXP1XdSXSRtV2MPwHNnp6xCVgRELS42YAZ8iJ\", \"Program log: Right:\", \"Program log: 3133pGv5w3HLGhDsrpPYRFAJJWgV2kFDvop9yBBeqd11\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 6417 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x7d6\"], inner_instructions: [[]], compute_units_consumed: 6417, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "authority_mismatch_00",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "authorization",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(2006)), meta: TransactionMetadata { signature: 4Sz3yfdYPJhMWkBp3VFncPoD3iZC6nfuT86hLUE3gM6xG8WYE7oG6vr6nKDav3E6XnzjssECo4UFwwK8asfTRXWc, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program log: AnchorError caused by account: vault. Error Code: ConstraintSeeds. Error Number: 2006. Error Message: A seeds constraint was violated.\", \"Program log: Left:\", \"Program log: RNocr77eJKte4zAXArfaTY1yX4q2HR9JNdVWbAsbqwQ\", \"Program log: Right:\", \"Program log: GxKHBAfY33qVMSQQJs8sAdGak35o4X1DrsEmeG7Xash6\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 6417 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x7d6\"], inner_instructions: [[]], compute_units_consumed: 6417, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "authority_mismatch_01",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "authorization",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(2006)), meta: TransactionMetadata { signature: 538tA8NoLyKWs8KPEWN5BVPVjmrG3VkN91NkLjuY62T6vzDrQFyHkR3nE7VYRBV3S6uTww8UztJgAXRLLG3k1UPH, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program log: AnchorError caused by account: vault. Error Code: ConstraintSeeds. Error Number: 2006. Error Message: A seeds constraint was violated.\", \"Program log: Left:\", \"Program log: DG81LLw9thXktYcE4w7wJ8theoC1gr6pZ3UKkgoYRNuw\", \"Program log: Right:\", \"Program log: ACFcE5iYYn23N7UHKGeHpVEh5qfFds71uXqeQjEfMBP9\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 6417 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x7d6\"], inner_instructions: [[]], compute_units_consumed: 6417, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "authority_mismatch_02",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "authorization",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(2006)), meta: TransactionMetadata { signature: 5NP6dBvzvZpCj7XNNs8yhuATYB5cyrmGERky5y7W3pWMdtTAhuwdyb3GU9XbzksM9fKXRo82Sm3yLLTE1TygSEZc, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program log: AnchorError caused by account: vault. Error Code: ConstraintSeeds. Error Number: 2006. Error Message: A seeds constraint was violated.\", \"Program log: Left:\", \"Program log: F7tJuBzseZxmioqrtAt8SYDZfiVQUzFhAG9ocqyS8ApE\", \"Program log: Right:\", \"Program log: 8fDTYStGiUWSHEUdXyt9SYg9EiLCmcuVsqQuYC7ufgi6\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 6417 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x7d6\"], inner_instructions: [[]], compute_units_consumed: 6417, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "authority_mismatch_03",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "authorization",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(2006)), meta: TransactionMetadata { signature: 55VF3sVDXKtWjGYJjVc5hgQqaMMmmHV8Z36XyqxLPwStuWmJ7LNBP82DTWZUte2jQZW9mrRBcVtVchUNXCJvNe4r, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program log: AnchorError caused by account: vault. Error Code: ConstraintSeeds. Error Number: 2006. Error Message: A seeds constraint was violated.\", \"Program log: Left:\", \"Program log: CE2wznj7dmQuoKVsvTqYZvPCroCknimB6fME297GYo7z\", \"Program log: Right:\", \"Program log: 6zCvREH4HtZPT8UqtpjKzE4kqSaEEygvYTyafxmgfnRB\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 4917 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x7d6\"], inner_instructions: [[]], compute_units_consumed: 4917, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "authority_mismatch_04",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "authorization",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(2006)), meta: TransactionMetadata { signature: 5TybrbLU3Eyo49cn7J4Q9RUCNy5pKiv3b9DdpKZnh9uv7RPdfWNF7Zfwj8WtZEsPMUZ3ryXP8DaPqvYytoyphGHY, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program log: AnchorError caused by account: vault. Error Code: ConstraintSeeds. Error Number: 2006. Error Message: A seeds constraint was violated.\", \"Program log: Left:\", \"Program log: G7CXHkcPqJdF9mUXuUQcRMUNbGqhLFVR6dSVQtCcpogQ\", \"Program log: Right:\", \"Program log: EhdQjuVp5xsTK6Z4XqjBf8i2kfX5uqhxLiK974LLCygF\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 4917 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x7d6\"], inner_instructions: [[]], compute_units_consumed: 4917, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "authority_mismatch_05",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "authorization",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(2006)), meta: TransactionMetadata { signature: 3bEj4CqE5nb7qnhqdu5ZBdEC2bPsDmWouKmbzXt26rzT7WBWGJB5w4JBDQUsKbU54yccubC3iU1b124LfdiPEczp, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program log: AnchorError caused by account: vault. Error Code: ConstraintSeeds. Error Number: 2006. Error Message: A seeds constraint was violated.\", \"Program log: Left:\", \"Program log: HfH6ubjWMryCqqhyiptwTyPt1aKPXGvfQbmbTm4R855D\", \"Program log: Right:\", \"Program log: 4n8LZ6seYkUFFCQmaPw8wEdQgSPDYKLEHh2AsoVYY6uN\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 4917 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x7d6\"], inner_instructions: [[]], compute_units_consumed: 4917, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "authority_mismatch_06",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "authorization",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(2006)), meta: TransactionMetadata { signature: 5DMWamNv6eWgEG6QhqqFQ3d7nzzoNn1JRJ5H5SFgtLquu57ERJj9KzoryTeEwjxvcpXuXLqkt2A3FoKv4Ttm7mZB, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program log: AnchorError caused by account: vault. Error Code: ConstraintSeeds. Error Number: 2006. Error Message: A seeds constraint was violated.\", \"Program log: Left:\", \"Program log: FFPette5BUZejLrHnnGA858VRd9N2gzMdDLzd5e5HTio\", \"Program log: Right:\", \"Program log: FXD4TnsGqgEfUiz8h8RyPpGmEzHfJtnq2Cx85L7TTA83\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 4917 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x7d6\"], inner_instructions: [[]], compute_units_consumed: 4917, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "authority_mismatch_07",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "authorization",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(2006)), meta: TransactionMetadata { signature: 2Xpme8CzGydLGcq2ui65iZpcX3EBhwXAgnH9zZGXQSz8onw7xMUi7sny2B1UKShgUJyc3HzsLz3bb7iBffuuxnbd, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program log: AnchorError caused by account: vault. Error Code: ConstraintSeeds. Error Number: 2006. Error Message: A seeds constraint was violated.\", \"Program log: Left:\", \"Program log: EBmGvhWe2YsTZ8qtC5t8iGR4AXEzQgTj84WjPMXK8zoo\", \"Program log: Right:\", \"Program log: 6zf7sERULLmjntoBrF72iJMcQrWuFbPxK4vnGATXJJcV\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 4917 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x7d6\"], inner_instructions: [[]], compute_units_consumed: 4917, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "authority_mismatch_08",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "authorization",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(2006)), meta: TransactionMetadata { signature: 3PUxpUm9C7fiSHMiMTSNQsZPDmYpFqC97vdAXDCm8sVnM36UAnp6hJbkXNXRkgS5vniCwQnEcjxNQVpJR5qp4vUK, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Withdraw\", \"Program log: AnchorError caused by account: vault. Error Code: ConstraintSeeds. Error Number: 2006. Error Message: A seeds constraint was violated.\", \"Program log: Left:\", \"Program log: 3Fg12Sdrtsryk3VL4ZKAtw5aUvZEkvRLxWMrexShASNW\", \"Program log: Right:\", \"Program log: 95JxRKoxUK9puUu5Yu3jjP51H27ibnCtycpAVJpmZzRP\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 4917 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0x7d6\"], inner_instructions: [[]], compute_units_consumed: 4917, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "authority_mismatch_09",
+      "instruction": "withdraw",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "pda-seeds",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(3012)), meta: TransactionMetadata { signature: 79FdugMSJgfChLvd1FAacL9kdgbrPhiGdgQuBZhtLKRZT1sB1r4Fmu8zh3YM66iiKwt9q6dfzjEDAcNktxiKTLC, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Deposit\", \"Program log: AnchorError caused by account: vault. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 2864 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0xbc4\"], inner_instructions: [[]], compute_units_consumed: 2864, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "pda_seed_mutation_00",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "pda-seeds",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(3012)), meta: TransactionMetadata { signature: 3rraHg4iegxdRLdVYuqXkoAWw6h1uimZzaXs5ao3RSgQ3bt5JSXjG22B6c5iXV2nRvDaxNj9ZRGC7LW3pkuVWuMa, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Deposit\", \"Program log: AnchorError caused by account: vault. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 2864 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0xbc4\"], inner_instructions: [[]], compute_units_consumed: 2864, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "pda_seed_mutation_01",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "pda-seeds",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(3012)), meta: TransactionMetadata { signature: doA9MF2k8qZ72YZnPzQjdADN21cret6tRurea632ucwH7YgLSNiQy9SfScsnxuvbGABAVbKWf27CZYfk7mxgLFp, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Deposit\", \"Program log: AnchorError caused by account: vault. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 2864 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0xbc4\"], inner_instructions: [[]], compute_units_consumed: 2864, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "pda_seed_mutation_02",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "pda-seeds",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(3012)), meta: TransactionMetadata { signature: 4BrtbZQZXG1C896YZJdHgmATe628iXGLS4xnAAqB9SpR6LKB2f31kYPbocMiDzm1Gjh6PEHad7qwaz2YzrW5tyv9, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Deposit\", \"Program log: AnchorError caused by account: vault. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 2864 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0xbc4\"], inner_instructions: [[]], compute_units_consumed: 2864, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "pda_seed_mutation_03",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "pda-seeds",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(3012)), meta: TransactionMetadata { signature: 2VuJZdAyrreWcDwRR9fnWgKy9vDpfWNv9Zn5rYEB2QoZKawEYcENSeemzcNgMFKi6S2yu1F6vrGfvE7hzQXVaV1s, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Deposit\", \"Program log: AnchorError caused by account: vault. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 2864 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0xbc4\"], inner_instructions: [[]], compute_units_consumed: 2864, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "pda_seed_mutation_04",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "pda-seeds",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(3012)), meta: TransactionMetadata { signature: 4FJnxEZjMoTqaivHR2evwzM3KrBzeKcPvCBkbWssTNwhQgoLQLt8gvbEDuc5cNwGnBmxvERTjqPXTPjgZh4vCrw1, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Deposit\", \"Program log: AnchorError caused by account: vault. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 2864 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0xbc4\"], inner_instructions: [[]], compute_units_consumed: 2864, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "pda_seed_mutation_05",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "pda-seeds",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(3012)), meta: TransactionMetadata { signature: 5DHsue4QioUDXmZT6MndSJF48iprjZNiTi1MuqqzwD4irqFdkGRUSMMKi6dTGNWL9By9u8evrVe9tG3WKbGbwWGW, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Deposit\", \"Program log: AnchorError caused by account: vault. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 2864 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0xbc4\"], inner_instructions: [[]], compute_units_consumed: 2864, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "pda_seed_mutation_06",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "pda-seeds",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(3012)), meta: TransactionMetadata { signature: 5cDsEjmv61fCmXcZpnD3BUigEKtd5esmJXyjz123hkKH8yTAXUE7mrXy6uBMFhi6yFnVHyiKJ4Tf2tghQ711M9Sc, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Deposit\", \"Program log: AnchorError caused by account: vault. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 2864 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0xbc4\"], inner_instructions: [[]], compute_units_consumed: 2864, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "pda_seed_mutation_07",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "pda-seeds",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(3012)), meta: TransactionMetadata { signature: 5bJvqH92LS7cdNU8i22JTncJnXT5kGSKZ9YZokfPyCY22VXWUFF7Mm7wWmez6arNRxe1cSceNDi7wLW9gPSqM7GE, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Deposit\", \"Program log: AnchorError caused by account: vault. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 2864 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0xbc4\"], inner_instructions: [[]], compute_units_consumed: 2864, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "pda_seed_mutation_08",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "pda-seeds",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(3012)), meta: TransactionMetadata { signature: t8fE11ZCAmkhH8DbY8UWp6oak5p4WMMRLPegCQHPizZC3cfvXP2PEw8NReb8hgxvRPrkcQaM12gDtHr3PHmaZPZ, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Deposit\", \"Program log: AnchorError caused by account: vault. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 2864 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0xbc4\"], inner_instructions: [[]], compute_units_consumed: 2864, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "pda_seed_mutation_09",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "pda-seeds",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(3012)), meta: TransactionMetadata { signature: 3ZiTzUmXfsDAvntLzXk7PUS7cK51Fdf7CH8kdtPFsagaeKXh4qJqRdFZ4BUS4uYiGNLqhLCWbTNbWr2oVupCJKN3, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Deposit\", \"Program log: AnchorError caused by account: vault. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 2864 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0xbc4\"], inner_instructions: [[]], compute_units_consumed: 2864, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "pda_seed_mutation_10",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "pda-seeds",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(3012)), meta: TransactionMetadata { signature: 4X8vroh62V9MHWUpBpxdNdFFf8dovWfk8sQ7rDi13ohwnFQYiqj68M3eqUQMSL5DHqpFnj5TpAAhE57B8MPYrRyc, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: Deposit\", \"Program log: AnchorError caused by account: vault. Error Code: AccountNotInitialized. Error Number: 3012. Error Message: The program expected this account to be already initialized.\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 2864 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0xbc4\"], inner_instructions: [[]], compute_units_consumed: 2864, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "pda_seed_mutation_11",
+      "instruction": "deposit",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "account-shape",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(3008)), meta: TransactionMetadata { signature: 3bdJj1f97XjWi8MSq8JCSFfUxHQFK1xpSoc5nqXrVhaBaAMZ6FTQCYyu9CzTfwAatU4xJyzBqRCC3XZ7FXKfzjmc, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: InitializeVault\", \"Program log: AnchorError caused by account: system_program. Error Code: InvalidProgramId. Error Number: 3008. Error Message: Program ID was not as expected.\", \"Program log: Left:\", \"Program log: ArgNhGVdEEkEj6D7EmbQi7Q7eVVXHJtM7LUFvEEApRhb\", \"Program log: Right:\", \"Program log: 11111111111111111111111111111111\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 2948 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0xbc0\"], inner_instructions: [[]], compute_units_consumed: 2948, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "account_meta_mutation_00",
+      "instruction": "initialize_vault",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "account-shape",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(3008)), meta: TransactionMetadata { signature: 2VigX7BCyLpTokjWt1aBiEgXqnBAdi8Fgsr6u28cHdN1zMBm1rEu3iJT7cCgsVeRfCeeRFsR2hdAkt8gUSfs9zr8, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: InitializeVault\", \"Program log: AnchorError caused by account: system_program. Error Code: InvalidProgramId. Error Number: 3008. Error Message: Program ID was not as expected.\", \"Program log: Left:\", \"Program log: Ejhgf7WcGZGPrKnY9YYbiZM25LCyZmhSeAFbsD2obq5k\", \"Program log: Right:\", \"Program log: 11111111111111111111111111111111\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 2948 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0xbc0\"], inner_instructions: [[]], compute_units_consumed: 2948, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "account_meta_mutation_01",
+      "instruction": "initialize_vault",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "account-shape",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(3008)), meta: TransactionMetadata { signature: bcD2mAMYPmNYd8JRvb1mDYaFTitfMFBZxye4ETaeib4kYgemXR5T22S5xJeXSkkanBE6PFoAs6pEXNVM2LzQETE, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: InitializeVault\", \"Program log: AnchorError caused by account: system_program. Error Code: InvalidProgramId. Error Number: 3008. Error Message: Program ID was not as expected.\", \"Program log: Left:\", \"Program log: DHSAztHxvJt7mAHfv9QvEMeyPNraXYz34BUd8oFjnx78\", \"Program log: Right:\", \"Program log: 11111111111111111111111111111111\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 2948 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0xbc0\"], inner_instructions: [[]], compute_units_consumed: 2948, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "account_meta_mutation_02",
+      "instruction": "initialize_vault",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "account-shape",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(3008)), meta: TransactionMetadata { signature: 3HNokt8NqTEKTgBBPo6WwbMTW8rTm4Rj3QFftmpFbmPzSGauqbKx4A6etLiiRQQ6uDtPoujUfgCkPSPbiEC5x2LU, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: InitializeVault\", \"Program log: AnchorError caused by account: system_program. Error Code: InvalidProgramId. Error Number: 3008. Error Message: Program ID was not as expected.\", \"Program log: Left:\", \"Program log: BLA1G54VhfXEH9UCaYLqy5anHsYKbXummyu3r9hK7xC1\", \"Program log: Right:\", \"Program log: 11111111111111111111111111111111\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 2948 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0xbc0\"], inner_instructions: [[]], compute_units_consumed: 2948, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "account_meta_mutation_03",
+      "instruction": "initialize_vault",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "account-shape",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(3008)), meta: TransactionMetadata { signature: 3V2KyFNLWq5BVZ83JEicgH9MGhZaXNQLm6e6vAF1CkAc14T2EYAeZbNeDjvDAv3KtUiMRvWouHoHA9tKawu4tCHr, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: InitializeVault\", \"Program log: AnchorError caused by account: system_program. Error Code: InvalidProgramId. Error Number: 3008. Error Message: Program ID was not as expected.\", \"Program log: Left:\", \"Program log: EMmLGVukTqo8btV5FdSMenauAX6AY9NP6M6W8XtB4ww1\", \"Program log: Right:\", \"Program log: 11111111111111111111111111111111\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 2948 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0xbc0\"], inner_instructions: [[]], compute_units_consumed: 2948, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "account_meta_mutation_04",
+      "instruction": "initialize_vault",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "account-shape",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(3008)), meta: TransactionMetadata { signature: 2GiWB1MKa7yeCj5DtNmqzTfpgEEHxriPpifXy3Y4nXBUJa2TVonPPCwTy4qL1Qujk7fCMPbYjKgExgSs9AnZ8Pij, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: InitializeVault\", \"Program log: AnchorError caused by account: system_program. Error Code: InvalidProgramId. Error Number: 3008. Error Message: Program ID was not as expected.\", \"Program log: Left:\", \"Program log: CDQN1J8Ao9hTWLQWyD4gwxt9pHnA3xitGSq2kjQAKYhJ\", \"Program log: Right:\", \"Program log: 11111111111111111111111111111111\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 2948 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0xbc0\"], inner_instructions: [[]], compute_units_consumed: 2948, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "account_meta_mutation_05",
+      "instruction": "initialize_vault",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "account-shape",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(3008)), meta: TransactionMetadata { signature: 5fYsvQaoHHzMkxD2ns3TwY9VYHQimFQhEH2YwVvhKX1tjGZ5aCRvThP9xVia4nojbDx1gJJZnuC2LKbCRKZRzj26, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: InitializeVault\", \"Program log: AnchorError caused by account: system_program. Error Code: InvalidProgramId. Error Number: 3008. Error Message: Program ID was not as expected.\", \"Program log: Left:\", \"Program log: 8hkQeV9TLTUEBhoCSuebfeME9LvjP7DDCFTaC3oxn2ZC\", \"Program log: Right:\", \"Program log: 11111111111111111111111111111111\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 2948 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0xbc0\"], inner_instructions: [[]], compute_units_consumed: 2948, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "account_meta_mutation_06",
+      "instruction": "initialize_vault",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "account-shape",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(3008)), meta: TransactionMetadata { signature: 5SE19WPtX4L9RexJViPNMgZ7ahnYhMzqz1zT1gan5n7NbWjQ5YpNcP54NK9T99U55sau5awDmQ8RYWrVwMGDxPFG, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: InitializeVault\", \"Program log: AnchorError caused by account: system_program. Error Code: InvalidProgramId. Error Number: 3008. Error Message: Program ID was not as expected.\", \"Program log: Left:\", \"Program log: FQxacKrYT7BjCsL2k1MUrkGoDUJeZyfBgiJrzB5CXWJZ\", \"Program log: Right:\", \"Program log: 11111111111111111111111111111111\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 2948 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0xbc0\"], inner_instructions: [[]], compute_units_consumed: 2948, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "account_meta_mutation_07",
+      "instruction": "initialize_vault",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "account-shape",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(3008)), meta: TransactionMetadata { signature: 4PKnNggVvprt5pHABztqJh4LFvR3wRWeuy9LyQCA8mjn9FRJcp6rRq6FHf2vLwALTos4pNAPtR94a39sAyhevrPK, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: InitializeVault\", \"Program log: AnchorError caused by account: system_program. Error Code: InvalidProgramId. Error Number: 3008. Error Message: Program ID was not as expected.\", \"Program log: Left:\", \"Program log: 8XQg7uCj1yWtuBC2unzdSSXAcrG456KqybcXbSSfXqsM\", \"Program log: Right:\", \"Program log: 11111111111111111111111111111111\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 2948 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0xbc0\"], inner_instructions: [[]], compute_units_consumed: 2948, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "account_meta_mutation_08",
+      "instruction": "initialize_vault",
+      "passed": true
+    },
+    {
+      "actual_success": false,
+      "category": "account-shape",
+      "error": "transaction failed: FailedTransactionMetadata { err: InstructionError(0, Custom(3008)), meta: TransactionMetadata { signature: 5qjki8kRxDXTEJE4mszJ2CjRYeNdhgkNZaDiPgnci5nTfZkiYmacN2LrAjccwGyWPoPV9C3Yd1GQLLffYkLR46FQ, logs: [\"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS invoke [1]\", \"Program log: Instruction: InitializeVault\", \"Program log: AnchorError caused by account: system_program. Error Code: InvalidProgramId. Error Number: 3008. Error Message: Program ID was not as expected.\", \"Program log: Left:\", \"Program log: 2u5pb2giB8WXmXR4QQCNoN9AynTGC4WvqxGKPLFGBWRm\", \"Program log: Right:\", \"Program log: 11111111111111111111111111111111\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS consumed 2948 of 200000 compute units\", \"Program Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS failed: custom program error: 0xbc0\"], inner_instructions: [[]], compute_units_consumed: 2948, return_data: TransactionReturnData { program_id: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS, data: [] }, fee: 5000 } }",
+      "expected_success": false,
+      "id": "account_meta_mutation_09",
+      "instruction": "initialize_vault",
+      "passed": true
+    }
+  ],
+  "execution": {
+    "command": "cargo test -p anchor-testing-suite --test litesvm_test -- --nocapture",
+    "stderr": "   Compiling anchor-testing-suite v0.1.0 (/home/abhishek-singh/Desktop/turbin3/anchor-testing-suite/programs/anchor-testing-suite)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.97s\n     Running tests/litesvm_test.rs (target/debug/deps/litesvm_test-5bcf1f2aa28a0676)\n",
+    "stdout": "\nrunning 1 test\nLiteSVM ready! Program deployed: Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS\nTest payer: 11157t3sqMV725NVRLrVQbAu98Jjfk1uCKehJnXXQs\ntest test_litesvm_setup ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.78s\n\n"
+  },
+  "generated_cases": [
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 0
+      },
+      "expected": "depends-on-balance-and-runtime",
+      "id": "amount_deposit_00",
+      "instruction": "deposit"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 0
+      },
+      "expected": "depends-on-vault-state-and-authority",
+      "id": "amount_withdraw_00",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 1
+      },
+      "expected": "depends-on-balance-and-runtime",
+      "id": "amount_deposit_01",
+      "instruction": "deposit"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 1
+      },
+      "expected": "depends-on-vault-state-and-authority",
+      "id": "amount_withdraw_01",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 2
+      },
+      "expected": "depends-on-balance-and-runtime",
+      "id": "amount_deposit_02",
+      "instruction": "deposit"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 2
+      },
+      "expected": "depends-on-vault-state-and-authority",
+      "id": "amount_withdraw_02",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 5
+      },
+      "expected": "depends-on-balance-and-runtime",
+      "id": "amount_deposit_03",
+      "instruction": "deposit"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 5
+      },
+      "expected": "depends-on-vault-state-and-authority",
+      "id": "amount_withdraw_03",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 10
+      },
+      "expected": "depends-on-balance-and-runtime",
+      "id": "amount_deposit_04",
+      "instruction": "deposit"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 10
+      },
+      "expected": "depends-on-vault-state-and-authority",
+      "id": "amount_withdraw_04",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 100
+      },
+      "expected": "depends-on-balance-and-runtime",
+      "id": "amount_deposit_05",
+      "instruction": "deposit"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 100
+      },
+      "expected": "depends-on-vault-state-and-authority",
+      "id": "amount_withdraw_05",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 1000
+      },
+      "expected": "depends-on-balance-and-runtime",
+      "id": "amount_deposit_06",
+      "instruction": "deposit"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 1000
+      },
+      "expected": "depends-on-vault-state-and-authority",
+      "id": "amount_withdraw_06",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 10000
+      },
+      "expected": "depends-on-balance-and-runtime",
+      "id": "amount_deposit_07",
+      "instruction": "deposit"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 10000
+      },
+      "expected": "depends-on-vault-state-and-authority",
+      "id": "amount_withdraw_07",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 100000
+      },
+      "expected": "depends-on-balance-and-runtime",
+      "id": "amount_deposit_08",
+      "instruction": "deposit"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 100000
+      },
+      "expected": "depends-on-vault-state-and-authority",
+      "id": "amount_withdraw_08",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 1000000
+      },
+      "expected": "depends-on-balance-and-runtime",
+      "id": "amount_deposit_09",
+      "instruction": "deposit"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 1000000
+      },
+      "expected": "depends-on-vault-state-and-authority",
+      "id": "amount_withdraw_09",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 10000000
+      },
+      "expected": "depends-on-balance-and-runtime",
+      "id": "amount_deposit_10",
+      "instruction": "deposit"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 10000000
+      },
+      "expected": "depends-on-vault-state-and-authority",
+      "id": "amount_withdraw_10",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 100000000
+      },
+      "expected": "depends-on-balance-and-runtime",
+      "id": "amount_deposit_11",
+      "instruction": "deposit"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 100000000
+      },
+      "expected": "depends-on-vault-state-and-authority",
+      "id": "amount_withdraw_11",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 4294967295
+      },
+      "expected": "depends-on-balance-and-runtime",
+      "id": "amount_deposit_12",
+      "instruction": "deposit"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 4294967295
+      },
+      "expected": "depends-on-vault-state-and-authority",
+      "id": "amount_withdraw_12",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 4294967296
+      },
+      "expected": "depends-on-balance-and-runtime",
+      "id": "amount_deposit_13",
+      "instruction": "deposit"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 4294967296
+      },
+      "expected": "depends-on-vault-state-and-authority",
+      "id": "amount_withdraw_13",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 18446744073709551614
+      },
+      "expected": "depends-on-balance-and-runtime",
+      "id": "amount_deposit_14",
+      "instruction": "deposit"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 18446744073709551614
+      },
+      "expected": "depends-on-vault-state-and-authority",
+      "id": "amount_withdraw_14",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 18446744073709551615
+      },
+      "expected": "depends-on-balance-and-runtime",
+      "id": "amount_deposit_15",
+      "instruction": "deposit"
+    },
+    {
+      "category": "amount-boundary",
+      "data": {
+        "amount": 18446744073709551615
+      },
+      "expected": "depends-on-vault-state-and-authority",
+      "id": "amount_withdraw_15",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "authorization",
+      "data": {
+        "authority_matches_user": false,
+        "mutated_signer_index": 0,
+        "signer_present": true
+      },
+      "expected": "should-fail-unauthorized",
+      "id": "authority_mismatch_00",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "authorization",
+      "data": {
+        "authority_matches_user": false,
+        "mutated_signer_index": 1,
+        "signer_present": false
+      },
+      "expected": "should-fail-unauthorized",
+      "id": "authority_mismatch_01",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "authorization",
+      "data": {
+        "authority_matches_user": false,
+        "mutated_signer_index": 2,
+        "signer_present": true
+      },
+      "expected": "should-fail-unauthorized",
+      "id": "authority_mismatch_02",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "authorization",
+      "data": {
+        "authority_matches_user": false,
+        "mutated_signer_index": 3,
+        "signer_present": false
+      },
+      "expected": "should-fail-unauthorized",
+      "id": "authority_mismatch_03",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "authorization",
+      "data": {
+        "authority_matches_user": false,
+        "mutated_signer_index": 4,
+        "signer_present": true
+      },
+      "expected": "should-fail-unauthorized",
+      "id": "authority_mismatch_04",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "authorization",
+      "data": {
+        "authority_matches_user": false,
+        "mutated_signer_index": 5,
+        "signer_present": false
+      },
+      "expected": "should-fail-unauthorized",
+      "id": "authority_mismatch_05",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "authorization",
+      "data": {
+        "authority_matches_user": false,
+        "mutated_signer_index": 6,
+        "signer_present": true
+      },
+      "expected": "should-fail-unauthorized",
+      "id": "authority_mismatch_06",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "authorization",
+      "data": {
+        "authority_matches_user": false,
+        "mutated_signer_index": 7,
+        "signer_present": false
+      },
+      "expected": "should-fail-unauthorized",
+      "id": "authority_mismatch_07",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "authorization",
+      "data": {
+        "authority_matches_user": false,
+        "mutated_signer_index": 8,
+        "signer_present": true
+      },
+      "expected": "should-fail-unauthorized",
+      "id": "authority_mismatch_08",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "authorization",
+      "data": {
+        "authority_matches_user": false,
+        "mutated_signer_index": 9,
+        "signer_present": false
+      },
+      "expected": "should-fail-unauthorized",
+      "id": "authority_mismatch_09",
+      "instruction": "withdraw"
+    },
+    {
+      "category": "pda-seeds",
+      "data": {
+        "mutation": "swap_seed_order"
+      },
+      "expected": "should-fail-constraint-seeds",
+      "id": "pda_seed_mutation_00",
+      "instruction": "deposit"
+    },
+    {
+      "category": "pda-seeds",
+      "data": {
+        "mutation": "truncate_const_seed"
+      },
+      "expected": "should-fail-constraint-seeds",
+      "id": "pda_seed_mutation_01",
+      "instruction": "deposit"
+    },
+    {
+      "category": "pda-seeds",
+      "data": {
+        "mutation": "append_extra_seed"
+      },
+      "expected": "should-fail-constraint-seeds",
+      "id": "pda_seed_mutation_02",
+      "instruction": "deposit"
+    },
+    {
+      "category": "pda-seeds",
+      "data": {
+        "mutation": "wrong_user_pubkey_seed"
+      },
+      "expected": "should-fail-constraint-seeds",
+      "id": "pda_seed_mutation_03",
+      "instruction": "deposit"
+    },
+    {
+      "category": "pda-seeds",
+      "data": {
+        "mutation": "wrong_bump"
+      },
+      "expected": "should-fail-constraint-seeds",
+      "id": "pda_seed_mutation_04",
+      "instruction": "deposit"
+    },
+    {
+      "category": "pda-seeds",
+      "data": {
+        "mutation": "empty_seed_list"
+      },
+      "expected": "should-fail-constraint-seeds",
+      "id": "pda_seed_mutation_05",
+      "instruction": "deposit"
+    },
+    {
+      "category": "pda-seeds",
+      "data": {
+        "mutation": "const_seed_case_change"
+      },
+      "expected": "should-fail-constraint-seeds",
+      "id": "pda_seed_mutation_06",
+      "instruction": "deposit"
+    },
+    {
+      "category": "pda-seeds",
+      "data": {
+        "mutation": "const_seed_single_byte_off"
+      },
+      "expected": "should-fail-constraint-seeds",
+      "id": "pda_seed_mutation_07",
+      "instruction": "deposit"
+    },
+    {
+      "category": "pda-seeds",
+      "data": {
+        "mutation": "random_seed_bytes"
+      },
+      "expected": "should-fail-constraint-seeds",
+      "id": "pda_seed_mutation_08",
+      "instruction": "deposit"
+    },
+    {
+      "category": "pda-seeds",
+      "data": {
+        "mutation": "seed_type_mismatch"
+      },
+      "expected": "should-fail-constraint-seeds",
+      "id": "pda_seed_mutation_09",
+      "instruction": "deposit"
+    },
+    {
+      "category": "pda-seeds",
+      "data": {
+        "mutation": "missing_account_seed_path"
+      },
+      "expected": "should-fail-constraint-seeds",
+      "id": "pda_seed_mutation_10",
+      "instruction": "deposit"
+    },
+    {
+      "category": "pda-seeds",
+      "data": {
+        "mutation": "duplicate_seed_entry"
+      },
+      "expected": "should-fail-constraint-seeds",
+      "id": "pda_seed_mutation_11",
+      "instruction": "deposit"
+    },
+    {
+      "category": "account-shape",
+      "data": {
+        "mutation": "vault_not_writable"
+      },
+      "expected": "should-fail-account-validation",
+      "id": "account_meta_mutation_00",
+      "instruction": "initialize_vault"
+    },
+    {
+      "category": "account-shape",
+      "data": {
+        "mutation": "user_not_signer"
+      },
+      "expected": "should-fail-account-validation",
+      "id": "account_meta_mutation_01",
+      "instruction": "initialize_vault"
+    },
+    {
+      "category": "account-shape",
+      "data": {
+        "mutation": "system_program_missing"
+      },
+      "expected": "should-fail-account-validation",
+      "id": "account_meta_mutation_02",
+      "instruction": "initialize_vault"
+    },
+    {
+      "category": "account-shape",
+      "data": {
+        "mutation": "vault_account_missing"
+      },
+      "expected": "should-fail-account-validation",
+      "id": "account_meta_mutation_03",
+      "instruction": "initialize_vault"
+    },
+    {
+      "category": "account-shape",
+      "data": {
+        "mutation": "duplicate_user_account"
+      },
+      "expected": "should-fail-account-validation",
+      "id": "account_meta_mutation_04",
+      "instruction": "initialize_vault"
+    },
+    {
+      "category": "account-shape",
+      "data": {
+        "mutation": "wrong_system_program_id"
+      },
+      "expected": "should-fail-account-validation",
+      "id": "account_meta_mutation_05",
+      "instruction": "initialize_vault"
+    },
+    {
+      "category": "account-shape",
+      "data": {
+        "mutation": "vault_owner_mismatch"
+      },
+      "expected": "should-fail-account-validation",
+      "id": "account_meta_mutation_06",
+      "instruction": "initialize_vault"
+    },
+    {
+      "category": "account-shape",
+      "data": {
+        "mutation": "extra_unexpected_account"
+      },
+      "expected": "should-fail-account-validation",
+      "id": "account_meta_mutation_07",
+      "instruction": "initialize_vault"
+    },
+    {
+      "category": "account-shape",
+      "data": {
+        "mutation": "reordered_accounts"
+      },
+      "expected": "should-fail-account-validation",
+      "id": "account_meta_mutation_08",
+      "instruction": "initialize_vault"
+    },
+    {
+      "category": "account-shape",
+      "data": {
+        "mutation": "readonly_authority"
+      },
+      "expected": "should-fail-account-validation",
+      "id": "account_meta_mutation_09",
+      "instruction": "initialize_vault"
+    }
+  ],
+  "step": 3,
+  "summary": {
+    "failed": 0,
+    "generated_edge_cases": 64,
+    "passed": 3
+  },
+  "tool": "anchor-suite"
+}
