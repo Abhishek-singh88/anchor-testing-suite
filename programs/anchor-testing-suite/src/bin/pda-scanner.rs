@@ -1,6 +1,15 @@
+use anchor_lang::{prelude::Pubkey, InstructionData};
+use anchor_testing_suite::{instruction as vault_ix, ID as PROGRAM_ID};
 use anyhow::{bail, Context, Result};
 use clap::{Parser, Subcommand};
+use litesvm::LiteSVM;
 use serde_json::{json, Value};
+use solana_address::Address;
+use solana_instruction::{account_meta::AccountMeta, Instruction};
+use solana_keypair::Keypair;
+use solana_message::Message;
+use solana_signer::Signer;
+use solana_transaction::Transaction;
 use std::collections::BTreeSet;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -219,10 +228,35 @@ fn run_tests(project_dir: &str) -> Result<()> {
         format!("generated {} deterministic cases", generated_count),
     ));
 
+    println!("{:-^60}", " Case Execution ");
+    let executed_cases = execute_edge_cases(&deploy_so, &cases)?;
+    let case_passed = executed_cases.iter().filter(|c| c.passed).count();
+    let case_failed = executed_cases.len().saturating_sub(case_passed);
+    println!("executed_cases: {}", executed_cases.len());
+    println!("case_passed: {}", case_passed);
+    println!("case_failed: {}", case_failed);
+    if case_failed == 0 {
+        checks.push(CheckResult::pass(
+            "generated_case_execution",
+            format!("all {} generated cases matched expectations", executed_cases.len()),
+        ));
+    } else {
+        checks.push(CheckResult::fail(
+            "generated_case_execution",
+            format!(
+                "{} of {} generated cases did not match expectations",
+                case_failed,
+                executed_cases.len()
+            ),
+            "Inspect `executed_cases` in report.json".to_string(),
+        ));
+    }
+
     let report_path = write_report(
         project_root,
         &checks,
         &cases,
+        &executed_cases,
         &stdout,
         &stderr,
         passed,
@@ -233,8 +267,10 @@ fn run_tests(project_dir: &str) -> Result<()> {
     println!("{:-^60}", " Summary ");
     println!("passed: {}", passed);
     println!("failed: {}", failed);
+    println!("case_passed: {}", case_passed);
+    println!("case_failed: {}", case_failed);
 
-    if failed > 0 {
+    if failed > 0 || case_failed > 0 {
         bail!("Test suite failed");
     }
 
@@ -276,6 +312,219 @@ struct EdgeCase {
     instruction: &'static str,
     expected: &'static str,
     data: Value,
+}
+
+#[derive(Debug)]
+struct ExecutedCase {
+    id: String,
+    category: String,
+    instruction: String,
+    expected_success: bool,
+    actual_success: bool,
+    passed: bool,
+    error: Option<String>,
+}
+
+fn execute_edge_cases(deploy_so: &Path, cases: &[EdgeCase]) -> Result<Vec<ExecutedCase>> {
+    let program_bytes = fs::read(deploy_so)
+        .with_context(|| format!("Failed to read {}", deploy_so.display()))?;
+    let mut results = Vec::with_capacity(cases.len());
+
+    for case in cases {
+        let expected_success = expected_success(case);
+        let actual = run_case_once(&program_bytes, case);
+        let (actual_success, error) = match actual {
+            Ok(()) => (true, None),
+            Err(e) => (false, Some(e)),
+        };
+        let passed = actual_success == expected_success;
+        results.push(ExecutedCase {
+            id: case.id.clone(),
+            category: case.category.to_string(),
+            instruction: case.instruction.to_string(),
+            expected_success,
+            actual_success,
+            passed,
+            error,
+        });
+    }
+
+    Ok(results)
+}
+
+fn expected_success(case: &EdgeCase) -> bool {
+    match (case.category, case.instruction) {
+        ("amount-boundary", "deposit") => case
+            .data
+            .get("amount")
+            .and_then(|v| v.as_u64())
+            .map(|a| a <= 5_000_000_000)
+            .unwrap_or(false),
+        ("amount-boundary", "withdraw") => false,
+        _ => false,
+    }
+}
+
+fn run_case_once(program_bytes: &[u8], case: &EdgeCase) -> std::result::Result<(), String> {
+    let mut svm = LiteSVM::new();
+    let program_address = Address::from(PROGRAM_ID.to_bytes());
+    svm.add_program(program_address, program_bytes)
+        .map_err(|e| format!("add_program failed: {e:?}"))?;
+
+    let payer = Keypair::new();
+    svm.airdrop(&payer.pubkey(), 5_000_000_000)
+        .map_err(|e| format!("airdrop failed: {e:?}"))?;
+
+    match case.category {
+        "amount-boundary" => run_amount_case(&mut svm, &payer, case),
+        "authorization" => run_authorization_case(&mut svm),
+        "pda-seeds" => run_seed_case(&mut svm, &payer, case),
+        "account-shape" => run_account_shape_case(&mut svm, &payer),
+        _ => Err(format!("unknown case category: {}", case.category)),
+    }
+}
+
+fn run_amount_case(
+    svm: &mut LiteSVM,
+    payer: &Keypair,
+    case: &EdgeCase,
+) -> std::result::Result<(), String> {
+    let amount = case
+        .data
+        .get("amount")
+        .and_then(|v| v.as_u64())
+        .ok_or_else(|| "missing amount".to_string())?;
+
+    let (vault_address, _) = derive_vault_address(&payer.pubkey());
+    send_initialize_vault(svm, payer, vault_address)?;
+
+    match case.instruction {
+        "deposit" => send_deposit(svm, payer, vault_address, amount),
+        "withdraw" => {
+            send_deposit(svm, payer, vault_address, 1_000_000)?;
+            send_withdraw(svm, payer, vault_address, amount)
+        }
+        other => Err(format!("unsupported amount instruction: {other}")),
+    }
+}
+
+fn run_authorization_case(svm: &mut LiteSVM) -> std::result::Result<(), String> {
+    let owner = Keypair::new();
+    let attacker = Keypair::new();
+    svm.airdrop(&owner.pubkey(), 5_000_000_000)
+        .map_err(|e| format!("owner airdrop failed: {e:?}"))?;
+    svm.airdrop(&attacker.pubkey(), 5_000_000_000)
+        .map_err(|e| format!("attacker airdrop failed: {e:?}"))?;
+
+    let (owner_vault, _) = derive_vault_address(&owner.pubkey());
+    send_initialize_vault(svm, &owner, owner_vault)?;
+    send_deposit(svm, &owner, owner_vault, 100_000)?;
+    send_withdraw(svm, &attacker, owner_vault, 1)
+}
+
+fn run_seed_case(
+    svm: &mut LiteSVM,
+    payer: &Keypair,
+    _case: &EdgeCase,
+) -> std::result::Result<(), String> {
+    let (vault_address, _) = derive_vault_address(&payer.pubkey());
+    send_initialize_vault(svm, payer, vault_address)?;
+
+    let wrong_vault = Keypair::new().pubkey();
+    send_deposit(svm, payer, wrong_vault, 10)
+}
+
+fn run_account_shape_case(svm: &mut LiteSVM, payer: &Keypair) -> std::result::Result<(), String> {
+    let (vault_address, _) = derive_vault_address(&payer.pubkey());
+    let wrong_system_program = payer.pubkey();
+    let ix = Instruction {
+        program_id: Address::from(PROGRAM_ID.to_bytes()),
+        accounts: vec![
+            AccountMeta::new(vault_address, false),
+            AccountMeta::new(payer.pubkey(), true),
+            AccountMeta::new_readonly(wrong_system_program, false),
+        ],
+        data: vault_ix::InitializeVault {}.data(),
+    };
+    send_ix(svm, payer, ix)
+}
+
+fn derive_vault_address(user: &Address) -> (Address, u8) {
+    let user_pubkey = Pubkey::new_from_array(user.to_bytes());
+    let (vault_pubkey, bump) =
+        Pubkey::find_program_address(&[b"vault", user_pubkey.as_ref()], &PROGRAM_ID);
+    (Address::from(vault_pubkey.to_bytes()), bump)
+}
+
+fn send_initialize_vault(
+    svm: &mut LiteSVM,
+    payer: &Keypair,
+    vault_address: Address,
+) -> std::result::Result<(), String> {
+    let system_program: Address = "11111111111111111111111111111111"
+        .parse()
+        .map_err(|e| format!("invalid system program address: {e}"))?;
+    let ix = Instruction {
+        program_id: Address::from(PROGRAM_ID.to_bytes()),
+        accounts: vec![
+            AccountMeta::new(vault_address, false),
+            AccountMeta::new(payer.pubkey(), true),
+            AccountMeta::new_readonly(system_program, false),
+        ],
+        data: vault_ix::InitializeVault {}.data(),
+    };
+    send_ix(svm, payer, ix)
+}
+
+fn send_deposit(
+    svm: &mut LiteSVM,
+    payer: &Keypair,
+    vault_address: Address,
+    amount: u64,
+) -> std::result::Result<(), String> {
+    let system_program: Address = "11111111111111111111111111111111"
+        .parse()
+        .map_err(|e| format!("invalid system program address: {e}"))?;
+    let ix = Instruction {
+        program_id: Address::from(PROGRAM_ID.to_bytes()),
+        accounts: vec![
+            AccountMeta::new(vault_address, false),
+            AccountMeta::new(payer.pubkey(), true),
+            AccountMeta::new_readonly(system_program, false),
+        ],
+        data: vault_ix::Deposit { amount }.data(),
+    };
+    send_ix(svm, payer, ix)
+}
+
+fn send_withdraw(
+    svm: &mut LiteSVM,
+    payer: &Keypair,
+    vault_address: Address,
+    amount: u64,
+) -> std::result::Result<(), String> {
+    let system_program: Address = "11111111111111111111111111111111"
+        .parse()
+        .map_err(|e| format!("invalid system program address: {e}"))?;
+    let ix = Instruction {
+        program_id: Address::from(PROGRAM_ID.to_bytes()),
+        accounts: vec![
+            AccountMeta::new(vault_address, false),
+            AccountMeta::new(payer.pubkey(), true),
+            AccountMeta::new_readonly(system_program, false),
+        ],
+        data: vault_ix::Withdraw { amount }.data(),
+    };
+    send_ix(svm, payer, ix)
+}
+
+fn send_ix(svm: &mut LiteSVM, payer: &Keypair, ix: Instruction) -> std::result::Result<(), String> {
+    let blockhash = svm.latest_blockhash();
+    let msg = Message::new_with_blockhash(&[ix], Some(&payer.pubkey()), &blockhash);
+    let tx = Transaction::new(&[payer], msg, blockhash);
+    svm.send_transaction(tx)
+        .map(|_| ())
+        .map_err(|e| format!("transaction failed: {e:?}"))
 }
 
 fn generate_edge_cases() -> Vec<EdgeCase> {
@@ -387,6 +636,7 @@ fn write_report(
     project_root: &Path,
     checks: &[CheckResult],
     cases: &[EdgeCase],
+    executed_cases: &[ExecutedCase],
     cargo_test_stdout: &str,
     cargo_test_stderr: &str,
     passed: usize,
@@ -422,6 +672,21 @@ fn write_report(
         })
         .collect();
 
+    let executed_cases_json: Vec<Value> = executed_cases
+        .iter()
+        .map(|c| {
+            json!({
+                "id": c.id,
+                "category": c.category,
+                "instruction": c.instruction,
+                "expected_success": c.expected_success,
+                "actual_success": c.actual_success,
+                "passed": c.passed,
+                "error": c.error
+            })
+        })
+        .collect();
+
     let report = json!({
         "tool": "anchor-suite",
         "step": 3,
@@ -437,6 +702,8 @@ fn write_report(
             "stderr": cargo_test_stderr
         },
         "generated_cases": cases_json
+        ,
+        "executed_cases": executed_cases_json
     });
 
     let report_string =
