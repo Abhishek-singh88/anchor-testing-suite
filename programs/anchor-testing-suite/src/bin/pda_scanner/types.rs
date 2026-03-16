@@ -2,6 +2,7 @@ use serde_json::Value;
 use solana_address::Address;
 use std::path::PathBuf;
 
+// Result summary for the optional smoke test run.
 #[derive(Debug)]
 pub struct SmokeResult {
     pub ok: bool,
@@ -10,6 +11,7 @@ pub struct SmokeResult {
     pub stderr: String,
 }
 
+// Parsed representation of one program + its instructions from IDL.
 #[derive(Debug)]
 pub struct ProgramSpec {
     pub idl_file: String,
@@ -18,6 +20,7 @@ pub struct ProgramSpec {
     pub instructions: Vec<InstructionSpec>,
 }
 
+// Parsed instruction schema from the IDL.
 #[derive(Debug, Clone)]
 pub struct InstructionSpec {
     pub name: String,
@@ -26,6 +29,7 @@ pub struct InstructionSpec {
     pub args: Vec<ArgSpec>,
 }
 
+// Account metadata for an instruction (signer, writable, PDA seeds).
 #[derive(Debug, Clone)]
 pub struct AccountSpec {
     pub name: String,
@@ -34,18 +38,21 @@ pub struct AccountSpec {
     pub pda_seeds: Vec<SeedSpec>,
 }
 
+// Supported PDA seed kinds extracted from the IDL.
 #[derive(Debug, Clone)]
 pub enum SeedSpec {
     Const(Vec<u8>),
     Account(String),
 }
 
+// Instruction argument schema (type is raw IDL JSON for flexible parsing).
 #[derive(Debug, Clone)]
 pub struct ArgSpec {
     pub name: String,
     pub ty: Value,
 }
 
+// One generated mutation case to execute.
 #[derive(Debug, Clone)]
 pub struct EdgeCase {
     pub id: String,
@@ -56,6 +63,7 @@ pub struct EdgeCase {
     pub expectation: Expectation,
 }
 
+// Mutation category applied to a base instruction.
 #[derive(Debug, Clone)]
 pub enum Mutation {
     None,
@@ -64,12 +72,14 @@ pub enum Mutation {
     WrongPda { account: String },
 }
 
+// Expected outcome for a case.
 #[derive(Debug, Clone, Copy)]
 pub enum Expectation {
     MustFail,
     Any,
 }
 
+// Result of executing one mutation case.
 #[derive(Debug)]
 pub struct ExecutedCase {
     pub id: String,
@@ -82,6 +92,7 @@ pub struct ExecutedCase {
     pub error: Option<String>,
 }
 
+// Preflight and pipeline check results (used in report).
 #[derive(Debug)]
 pub struct CheckResult {
     pub name: &'static str,
@@ -91,6 +102,7 @@ pub struct CheckResult {
 }
 
 impl CheckResult {
+    // Convenience constructor for passing checks.
     pub fn pass(name: &'static str, detail: String) -> Self {
         Self {
             name,
@@ -100,6 +112,7 @@ impl CheckResult {
         }
     }
 
+    // Convenience constructor for failing checks.
     pub fn fail(name: &'static str, detail: String, hint: String) -> Self {
         Self {
             name,
