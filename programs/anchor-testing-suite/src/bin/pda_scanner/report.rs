@@ -4,6 +4,7 @@ use serde_json::{json, Value};
 use std::fs;
 use std::path::{Path, PathBuf};
 
+// Emit a minimal report when we fail during preflight checks.
 pub fn write_min_report(project_root: &Path, checks: &[CheckResult]) -> Result<()> {
     let report_dir = project_root.join("target").join("anchor-suite");
     fs::create_dir_all(&report_dir)?;
@@ -30,6 +31,7 @@ pub fn write_min_report(project_root: &Path, checks: &[CheckResult]) -> Result<(
     Ok(())
 }
 
+// Emit the full report with checks, generated cases, and execution results.
 pub fn write_report(
     project_root: &Path,
     checks: &[CheckResult],
@@ -84,6 +86,7 @@ pub fn write_report(
         })
         .collect();
 
+    // Summary is a compact roll-up for CI logs and quick inspection.
     let summary = json!({
         "checks_failed": checks.iter().filter(|c| !c.ok).count(),
         "generated_edge_cases": generated.len(),
@@ -92,6 +95,7 @@ pub fn write_report(
         "case_failed": executed.iter().filter(|c| !c.passed).count()
     });
 
+    // Optional smoke output is included if the local test was available.
     let smoke_json = match smoke {
         Some(s) => json!({
             "ok": s.ok,
