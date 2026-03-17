@@ -6,6 +6,7 @@ use anyhow::{bail, Context, Result};
 use std::path::Path;
 use std::process::Command;
 
+// Drive the full CLI "test" flow: preflight checks, case generation/execution, and report output.
 pub fn run_tests(project_dir: &str) -> Result<()> {
     let project_root = Path::new(project_dir);
     let idl_dir = project_root.join("target").join("idl");
@@ -15,6 +16,7 @@ pub fn run_tests(project_dir: &str) -> Result<()> {
     println!("Running anchor-suite test");
     println!("{:-^60}", " Preflight ");
 
+    // Preflight: we need `target/idl` and `target/deploy` from `anchor build`.
     if idl_dir.exists() {
         println!("PASS  idl directory found: {}", idl_dir.display());
         checks.push(CheckResult::pass("idl_dir_exists", format!("{}", idl_dir.display())));
@@ -46,6 +48,7 @@ pub fn run_tests(project_dir: &str) -> Result<()> {
         bail!("Test suite failed");
     }
 
+    // Parse IDLs and match them to deployable .so files.
     let programs = load_program_specs(&idl_dir, &deploy_dir)?;
     if programs.is_empty() {
         checks.push(CheckResult::fail(
@@ -62,6 +65,7 @@ pub fn run_tests(project_dir: &str) -> Result<()> {
         format!("loaded {} program specs", programs.len()),
     ));
 
+    // Optional local smoke test if the repo includes litesvm_test.rs.
     let smoke = maybe_run_local_smoke(project_root)?;
     if let Some(smoke_result) = &smoke {
         if smoke_result.ok {
@@ -75,6 +79,7 @@ pub fn run_tests(project_dir: &str) -> Result<()> {
         }
     }
 
+    // Generate synthetic cases directly from IDL signatures.
     let generated = generate_edge_cases(&programs);
     println!("{:-^60}", " Generated Cases ");
     println!("generated_edge_cases: {}", generated.len());
@@ -84,6 +89,7 @@ pub fn run_tests(project_dir: &str) -> Result<()> {
     ));
 
     println!("{:-^60}", " Case Execution ");
+    // Execute each case inside LiteSVM and record outcome.
     let executed = execute_edge_cases(&programs, &generated)?;
     let case_passed = executed.iter().filter(|c| c.passed).count();
     let case_failed = executed.len().saturating_sub(case_passed);
@@ -104,6 +110,7 @@ pub fn run_tests(project_dir: &str) -> Result<()> {
         ));
     }
 
+    // Write full JSON report for CI or demo evidence.
     let report_path = write_report(project_root, &checks, &generated, &executed, &smoke)?;
     println!("report: {}", report_path.display());
 
@@ -119,6 +126,7 @@ pub fn run_tests(project_dir: &str) -> Result<()> {
     Ok(())
 }
 
+// Run an opt-in local test if it exists, but never fail the whole run if it's missing.
 fn maybe_run_local_smoke(project_root: &Path) -> Result<Option<SmokeResult>> {
     let smoke_test = project_root
         .join("programs")
