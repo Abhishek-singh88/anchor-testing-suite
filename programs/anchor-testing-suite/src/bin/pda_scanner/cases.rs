@@ -13,6 +13,7 @@ use solana_transaction::Transaction;
 use std::collections::HashMap;
 use std::fs;
 
+// Build a deterministic list of base + negative cases from IDL instructions.
 pub fn generate_edge_cases(programs: &[ProgramSpec]) -> Vec<EdgeCase> {
     let mut cases = Vec::new();
 
@@ -65,7 +66,9 @@ pub fn generate_edge_cases(programs: &[ProgramSpec]) -> Vec<EdgeCase> {
     cases
 }
 
+// Execute all cases in LiteSVM and return the per-case outcomes.
 pub fn execute_edge_cases(programs: &[ProgramSpec], cases: &[EdgeCase]) -> Result<Vec<ExecutedCase>> {
+    // Load program bytes once to avoid repeated I/O per case.
     let mut program_bytes = HashMap::new();
     for p in programs {
         let bytes = fs::read(&p.deploy_so)
@@ -110,6 +113,7 @@ pub fn execute_edge_cases(programs: &[ProgramSpec], cases: &[EdgeCase]) -> Resul
     Ok(out)
 }
 
+// Run a single case: deploy program, construct instruction, and submit a transaction.
 fn run_case(program_bytes: &[u8], case: &EdgeCase) -> std::result::Result<(), String> {
     let mut svm = LiteSVM::new();
     svm.add_program(case.program_id, program_bytes)
@@ -122,6 +126,7 @@ fn run_case(program_bytes: &[u8], case: &EdgeCase) -> std::result::Result<(), St
     let (account_metas, signer_keys) = build_accounts(case, &payer)?;
     let mut data = encode_instruction_data(&case.instruction)?;
 
+    // Mutations adjust the base case to force failure scenarios.
     if matches!(case.mutation, Mutation::TruncateData) && !data.is_empty() {
         data.pop();
     }
@@ -140,6 +145,7 @@ fn run_case(program_bytes: &[u8], case: &EdgeCase) -> std::result::Result<(), St
     send_ix(&mut svm, &payer, &signer_keys, ix)
 }
 
+// Resolve account metas and signer keypairs, including PDA derivation when possible.
 fn build_accounts(
     case: &EdgeCase,
     payer: &Keypair,
@@ -147,6 +153,7 @@ fn build_accounts(
     let mut signer_by_name: HashMap<String, Keypair> = HashMap::new();
     let mut pubkey_by_name: HashMap<String, Address> = HashMap::new();
 
+    // First pass: assign pubkeys for signer/non-signer accounts.
     for acc in &case.instruction.accounts {
         if acc.signer {
             if pubkey_by_name.is_empty() {
@@ -161,6 +168,7 @@ fn build_accounts(
         }
     }
 
+    // Second pass: derive PDA pubkeys for accounts that define seed recipes.
     for acc in &case.instruction.accounts {
         if acc.pda_seeds.is_empty() {
             continue;
@@ -193,6 +201,7 @@ fn build_accounts(
         pubkey_by_name.insert(acc.name.clone(), Address::from(pda.to_bytes()));
     }
 
+    // For wrong-PDA mutations, override the derived PDA with a random pubkey.
     if let Mutation::WrongPda { account } = &case.mutation {
         if pubkey_by_name.contains_key(account) {
             pubkey_by_name.insert(account.clone(), Keypair::new().pubkey());
@@ -223,6 +232,7 @@ fn build_accounts(
     Ok((metas, extra_signers))
 }
 
+// Encode discriminator + zero-value args to produce a minimal valid payload shape.
 fn encode_instruction_data(ix: &InstructionSpec) -> std::result::Result<Vec<u8>, String> {
     let mut out = ix.discriminator.clone();
     for arg in &ix.args {
@@ -233,6 +243,7 @@ fn encode_instruction_data(ix: &InstructionSpec) -> std::result::Result<Vec<u8>,
     Ok(out)
 }
 
+// Produce a zero-value encoding for supported IDL primitive/array types.
 fn encode_arg_zero(ty: &Value) -> std::result::Result<Vec<u8>, &'static str> {
     if let Some(s) = ty.as_str() {
         return match s {
@@ -262,6 +273,7 @@ fn encode_arg_zero(ty: &Value) -> std::result::Result<Vec<u8>, &'static str> {
     Err("complex arg type not supported")
 }
 
+// Submit the transaction to LiteSVM with the payer + any extra signers.
 fn send_ix(
     svm: &mut LiteSVM,
     payer: &Keypair,
