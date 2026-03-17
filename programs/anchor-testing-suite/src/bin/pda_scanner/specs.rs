@@ -5,6 +5,7 @@ use solana_address::Address;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+// Load program specs by pairing IDL files with the compiled .so in target/deploy.
 pub fn load_program_specs(idl_dir: &Path, deploy_dir: &Path) -> Result<Vec<ProgramSpec>> {
     let deploy_sos: Vec<PathBuf> = fs::read_dir(deploy_dir)?
         .filter_map(|e| e.ok().map(|x| x.path()))
@@ -12,6 +13,7 @@ pub fn load_program_specs(idl_dir: &Path, deploy_dir: &Path) -> Result<Vec<Progr
         .collect();
 
     let mut programs = Vec::new();
+    // Each IDL may contain multiple instructions; we only keep those that parse cleanly.
     for entry in fs::read_dir(idl_dir)? {
         let path = entry?.path();
         if path.extension().and_then(|s| s.to_str()) != Some("json") {
@@ -22,6 +24,7 @@ pub fn load_program_specs(idl_dir: &Path, deploy_dir: &Path) -> Result<Vec<Progr
         let idl: Value = serde_json::from_str(&idl_content)
             .with_context(|| format!("Invalid JSON in {}", path.display()))?;
 
+        // Address is commonly at idl.address or idl.metadata.address.
         let program_id_str = match idl["address"]
             .as_str()
             .or_else(|| idl["metadata"]["address"].as_str())
@@ -66,6 +69,7 @@ pub fn load_program_specs(idl_dir: &Path, deploy_dir: &Path) -> Result<Vec<Progr
     Ok(programs)
 }
 
+// Find the best matching .so file for a given IDL (by stem, metadata name, or single .so fallback).
 fn resolve_so_file(
     deploy_dir: &Path,
     sos: &[PathBuf],
@@ -94,6 +98,7 @@ fn resolve_so_file(
     )
 }
 
+// Convert an IDL instruction JSON blob into an internal InstructionSpec.
 fn parse_instruction(ix: &Value) -> Option<InstructionSpec> {
     let name = ix["name"].as_str()?.to_string();
     let discriminator = ix["discriminator"]
@@ -113,6 +118,7 @@ fn parse_instruction(ix: &Value) -> Option<InstructionSpec> {
             let writable = a["writable"].as_bool().unwrap_or(false);
 
             let mut pda_seeds = Vec::new();
+            // Capture PDA seed recipes if present so we can derive correct PDAs for tests.
             if let Some(seeds) = a["pda"]["seeds"].as_array() {
                 for s in seeds {
                     match s["kind"].as_str().unwrap_or("") {
